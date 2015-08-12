@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+        http://www.springframework.org/schema/mvc 
+	  http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+    <context:property-placeholder location="classpath:hibernate.properties" />
+
+    <!-- 数据库映射 -->
+    <!--  class="org.apache.tomcat.dbcp.dbcp.BasicDataSource" -->
+    <!--  class="org.springframework.jdbc.datasource.DriverManagerDataSource" -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+      <property name="driverClass" value="${jdbc.driverClassName}" />
+      <property name="jdbcUrl" value="${jdbc.url}" />
+      <property name="user" value="${jdbc.username}" />
+      <property name="password" value="${jdbc.password}" /> 
+      <property name="idleConnectionTestPeriod" value="${c3p0.idleConnectionTestPeriod}"/>
+ 		<property name="initialPoolSize" value="${c3p0.initialPoolSize}"/>
+ 		<property name="maxIdleTime" value="${c3p0.maxIdleTime}"/>
+ 		<property name="maxPoolSize" value="${c3p0.maxPoolSize}"/>
+ 		<property name="maxStatements" value="${c3p0.maxStatements}"/>
+ 		<property name="maxStatementsPerConnection" value="${c3p0.maxStatementsPerConnection}"/>
+ 		<property name="minPoolSize" value="${c3p0.minPoolSize}"/>
+   </bean>
+   <bean id="sessionFactory" 
+        class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="packagesToScan">
+            <list>
+                <!-- 可以加多个包 -->
+                <value>com.tonghang.web.*.*</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+                <prop key="hibernate.connection.autocommit">true</prop>
+                <prop key="hibernate.current_session_context_class">thread</prop> 
+            	<prop key="hibernate.cache.use_second_level_cache">false</prop>
+				<!-- 由于查询的缓存命中率很低，所以我们关掉查询时的二级缓存 -->
+				<prop key="hibernate.cache.use_query_cache">false</prop>
+				<prop key=" hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
+            </props>
+        </property>
+    </bean>
+<!--<mvc:interceptors>  
+	  <mvc:interceptor>  
+	   <mvc:mapping path="/*" /> 
+	   <bean class="com.tonghang.web.statistics.interceptor.StatisticsInterceptor" />  
+	  </mvc:interceptor>  
+	 </mvc:interceptors>    -->    
+    <bean id="transactionManager"
+        class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+      <property name="sessionFactory" ref="sessionFactory" />
+   </bean>
+   <bean id="persistenceExceptionTranslationPostProcessor" 
+       class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+
+ <!--   
+    <bean id="transactionManager"
+        class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+      <property name="sessionFactory" ref="sessionFactory" />
+   </bean>
+   <bean id="mainHibernateTemplate" class="org.springframework.orm.hibernate4.HibernateTemplate">
+		<property name="sessionFactory" ref="sessionFactory"/>
+		
+	</bean>
+   
+   
+    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="save*" propagation="REQUIRED"/>
+			<tx:method name="delete*" propagation="REQUIRED"/>
+			<tx:method name="update*" propagation="REQUIRED"/>
+			<tx:method name="find*" read-only="true"/>
+			<tx:method name="*" read-only="false"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<aop:config>
+		<aop:advisor pointcut="execution(* com.tonghang.web.*.*(..))" advice-ref="txAdvice"/>
+	</aop:config>-->
+</beans>  

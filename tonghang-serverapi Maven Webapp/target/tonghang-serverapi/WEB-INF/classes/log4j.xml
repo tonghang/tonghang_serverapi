@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">  
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">  
+  
+    <appender name="stdout" class="org.apache.log4j.ConsoleAppender">  
+        <layout class="org.apache.log4j.PatternLayout">  
+            <param name="ConversionPattern" value="%X{traceId} | %4d %p - %C{1}.%M(%L) | %m%n" />  
+        </layout>  
+    </appender>  
+  
+    <appender name="fileout" class="org.apache.log4j.RollingFileAppender">  
+        <param name="File" value="/data/serverside_tomcat_logs/log.log" />  
+        <param name="File" value="/data/serverside_tomcat_logs/log.log" />  
+        <param name="MaxFileSize" value="102400KB" />  
+        <param name="MaxBackupIndex" value="10" />  
+        <layout class="org.apache.log4j.PatternLayout">  
+            <param name="ConversionPattern" value="%X{traceId} | %4d %p - %C{1}.%M(%L) | %m%n" />  
+        </layout>  
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">  
+            <param name="levelMin" value="info" />  
+            <param name="levelMax" value="info" />  
+            <param name="AcceptOnMatch" value="true" />  
+        </filter>  
+    </appender>  
+  
+    <appender name="datacenter" class="org.apache.log4j.DailyRollingFileAppender">  
+        <param name="File" value="/data/serverside_tomcat_logs/logs/datacenter.log" />  
+        <layout class="org.apache.log4j.PatternLayout">  
+            <param name="ConversionPattern" value="%X{traceId} | %4d %p - %C{1}.%M(%L) | %m%n" />  
+        </layout>  
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">  
+            <param name="levelMin" value="info" />  
+            <param name="levelMax" value="info" />  
+            <param name="AcceptOnMatch" value="true" />  
+        </filter>  
+    </appender>  
+  
+    <appender name="exception" class="org.apache.log4j.DailyRollingFileAppender">  
+        <param name="File" value="/data/serverside_tomcat_logs/logs/datacenter.log" />  
+        <layout class="org.apache.log4j.PatternLayout">  
+            <param name="ConversionPattern" value="%X{traceId} | %4d %p - %C{1}.%M(%L) | %m%n" />  
+        </layout>  
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">  
+            <param name="levelMin" value="info" />  
+            <param name="levelMax" value="info" />  
+            <param name="AcceptOnMatch" value="true" />  
+        </filter>  
+    </appender>  
+  
+  
+    <appender name="test" class="org.apache.log4j.DailyRollingFileAppender">  
+        <param name="File"  
+            value="/data/serverside_tomcat_logs/logs/testfortimeseries.log" />  
+        <layout class="org.apache.log4j.PatternLayout">  
+            <param name="ConversionPattern" value="%X{traceId} | %4d %p - %C{1}.%M(%L) | %m%n" />  
+        </layout>  
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">  
+            <param name="levelMin" value="info" />  
+            <param name="levelMax" value="info" />  
+            <param name="AcceptOnMatch" value="true" />  
+        </filter>  
+    </appender>  
+  
+    <appender name="ASYNC" class="org.apache.log4j.AsyncAppender">  
+        <param name="BufferSize" value="32768" />  
+        <appender-ref ref="fileout" />  
+        <appender-ref ref="datacenter" />  
+        <appender-ref ref="exception" />  
+        <appender-ref ref="test" />  
+    </appender>  
+  
+    <logger name="com.morningstar.oneteam.datacenter.exception">  
+        <level value="debug" />  
+        <appender-ref ref="exception" />  
+    </logger>  
+    <logger name="com.morningstar.oneteam.datacenter">  
+        <level value="debug" />  
+        <appender-ref ref="datacenter" />  
+    </logger>  
+    <logger name="test">  
+        <level value="debug" />  
+        <appender-ref ref="test" />  
+    </logger>  
+      
+    <root>  
+        <priority value="warn" />  
+        <appender-ref ref="stdout" />  
+        <appender-ref ref="fileout" />  
+        <appender-ref ref="ASYNC" />  
+    </root>  
+  
+</log4j:configuration>    
