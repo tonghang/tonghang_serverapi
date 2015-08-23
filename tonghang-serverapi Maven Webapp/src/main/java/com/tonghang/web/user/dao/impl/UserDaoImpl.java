@@ -37,7 +37,11 @@ public class UserDaoImpl implements UserDao {
 		session.close();
 		return user;
 	}
-
+	
+	/**
+	*notice:性别和年龄信息不全的用户不会被查出来
+	*
+	*/
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> findUserByLabel(String label_name,int nowpage) {
@@ -50,7 +54,7 @@ public class UserDaoImpl implements UserDao {
 //		"select distinct user from User as user left join user.labellist as label where upper('label_name') = upper(:label_name) order by user.client_id"
 		//SELECT * from users as u ,users_labels as ul where u.client_id = ul.client_id and upper(ul.label_name) = upper(:label_name)
 		//select distinct user from User as user left join user.labellist as label where lower(label.label_name) like lower(:label_name) order by user.created_at
-		Query query = session.createQuery("select distinct user from User as user left join user.labellist as label where lower(label.label_name) like lower(:label_name) order by user.created_at");
+		Query query = session.createQuery("select distinct user from User as user left join user.labellist as label where lower(label.label_name) like concat('%',lower(:label_name),'%') and (user.birth is not null and user.birth != '') and (user.sex is not null and user.sex != '') order by user.created_at");
 		List<User> user = (List<User>) query.setParameter("label_name", label_name).setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
 		System.out.println(user);
 		System.out.println(">>>>>>>>>"+query.getQueryString());
@@ -101,7 +105,7 @@ public class UserDaoImpl implements UserDao {
 		session.close();
 	}
 	/**
-	 * 模糊搜索（findUserByNickName是精确的）
+	 * 模糊搜索（findUserByNickName是精确的）.性别和年龄信息不全的用户不会被查出来
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -112,8 +116,10 @@ public class UserDaoImpl implements UserDao {
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}
-		List<User> users = session.createQuery("from User as user where lower(user.username) like lower(:username)").
+		System.out.println("搜索用户条件："+username+" page: "+page);
+		List<User> users = session.createQuery("select distinct user from User as user where lower(username) like concat('%',lower(:username),'%') and (user.birth is not null and user.birth != '') and(user.sex is not null and user.sex != '') order by user.created_at").
 							setParameter("username", username).setFirstResult(Constant.PAGESIZE*(page-1)).setMaxResults(Constant.PAGESIZE).list();
+		System.out.println("模糊匹配结果："+users);
 		session.getTransaction().commit();
 		session.close();
 		return users;

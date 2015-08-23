@@ -19,9 +19,11 @@ public class ActiveData  implements Serializable{
 	@GenericGenerator(strategy="assigned",name="idGenerator")
 	@GeneratedValue(generator="idGenerator")
 	private int id;
-	@Column(name="new_user")
+	@Column(name="new_users")
 	private int new_user;
-	@Column(name="date")
+	@Id
+	@GenericGenerator(strategy="assigned",name="idGenerator")
+	@GeneratedValue(generator="idGenerator")
 	private Date date;
 	public int getId() {
 		return id;

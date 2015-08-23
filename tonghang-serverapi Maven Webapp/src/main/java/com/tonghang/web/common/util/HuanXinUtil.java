@@ -152,6 +152,21 @@ public class HuanXinUtil {
 		LogUtil.printLog("环信返回的group_id:"+(String) msg.get("data").get("groupid"));
 		return (String) msg.get("data").get("groupid");
 	}
-
+	
+		/**
+	 * 业务功能：切换某话题的群主
+	 * @param oldowner
+	 * notice:由于群主无法退出话题，现在只有利用一个账号去替换这个群主来达到让群主退出话题的目的
+	 */
+	public static void chanegOwner(String newowner,String group_id){
+		HttpHeaders header = new HttpHeaders();
+		Map<String,Object> parts = new HashMap<String, Object>();
+		header.add("Authorization","Bearer "+HUANXINtoken);
+		System.out.println("huanxin_token:  "+HUANXINtoken);
+		parts.put("newowner", newowner);
+		HttpEntity<Map<String,Object>> requestEntity=
+				new HttpEntity<Map<String,Object>>(parts,header);
+		DataUtil.putEntity(Constant.HUANXIN_URL+"chatgroups/"+group_id,requestEntity);
+	}
 
 }

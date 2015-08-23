@@ -66,11 +66,11 @@ public class User {
 	@Column(name="isonline")
 	private String isonline;
 	
+	@Column(name="province")
+	private String province;
+	
 	@Column(name="city")
 	private String city;
-	
-	@Column(name="ext1")
-	private String ext1;
 	
 	@Column(name="ext2")
 	private String ext2;
@@ -198,14 +198,12 @@ public class User {
 		this.city = city;
 	}
 
-	public String getExt1() {
-		return ext1;
+	public String getProvince() {
+		return province;
 	}
-
-	public void setExt1(String ext1) {
-		this.ext1 = ext1;
+	public void setProvince(String province) {
+		this.province = province;
 	}
-
 	public String getExt2() {
 		return ext2;
 	}

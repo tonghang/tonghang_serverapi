@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tonghang.web.common.exception.SearchNoResultException;
 import com.tonghang.web.common.util.CommonMapUtil;
+import com.tonghang.web.common.util.Constant;
 import com.tonghang.web.common.util.HuanXinUtil;
 import com.tonghang.web.label.dao.LabelDao;
 import com.tonghang.web.label.pojo.Label;
@@ -158,18 +159,25 @@ public class TopicService {
 	 * @param isJoin	判断用户加入话题还是退出话题
 	 * @return
 	 */
-	public Map<String,Object> joinOrLeaveTopic(String huanxin_group_id,String client_id,boolean isJoin){
+	public Map<String,Object> joinOrLeaveTopic(String huanxin_group_id,String client_id,boolean isJoin,boolean isOwner){
 		User user = new User();
 		Topic topic = new Topic();
-		Map<String,Object> result = CommonMapUtil.baseMsgToMapConvertor();
-		Map<String,Object> topicmap = new HashMap<String, Object>();
+		Map<String,Object> result = new HashMap<String, Object>();
+		Map<String,Object> topicmap = CommonMapUtil.baseMsgToMapConvertor();
 		topic.setHuanxin_group_id(huanxin_group_id);
 		user.setClient_id(client_id);
 		if(isJoin){
 			topicDao.userLeaveTopic(user);
-			topicDao.userJoinTopic(user, topic);	
-		}else 
+			topicDao.userJoinTopic(user, topic);
+			if(isOwner){
+				HuanXinUtil.chanegOwner(client_id, huanxin_group_id);
+			}
+		}else{
 			topicDao.userLeaveTopic(user);
+			if(isOwner){
+				HuanXinUtil.chanegOwner(Constant.CHANGER_ID, huanxin_group_id);
+			}
+		}
 		topic = topicDao.findTopicById(huanxin_group_id);
 		user = userDao.findUserById(client_id);
 		Map<String,Object> usermap = userUtil.userToMapConvertor(user,client_id);

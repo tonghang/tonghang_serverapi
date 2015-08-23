@@ -54,9 +54,7 @@ public class TopicDaoImpl implements TopicDao{
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}
-		session.flush(); 
-		session.clear();
-		List<Topic> topics = (List<Topic>) session.createQuery("from Topic as topic where lower(topic.label.label_name) like lower(:label_name)")
+		List<Topic> topics = (List<Topic>) session.createQuery("from Topic as topic where lower(topic.label.label_name) like concat('%',lower(:label_name),'%') order by topic.created_at")
 								.setParameter("label_name", label_name).setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
 		session.getTransaction().commit();
 		session.close();
@@ -76,9 +74,8 @@ public class TopicDaoImpl implements TopicDao{
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}
-		session.clear();
-		List<Topic> topics = (List<Topic>) session.createQuery("from Topic as topic where topic.subject like :subject")
-										.setParameter("subject", "%"+subject+"%").setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
+		List<Topic> topics = (List<Topic>) session.createQuery("from Topic as topic where lower(topic.subject) like concat('%',lower(:subject),'%')")
+										.setParameter("subject", subject).setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
 		session.getTransaction().commit();
 		session.close();
 		return topics;
@@ -170,9 +167,8 @@ public class TopicDaoImpl implements TopicDao{
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}
-		session.clear();
-		List<Topic> topics = (List<Topic>) session.createQuery("from Topic as topic where topic.label.label_name like '%"+label+"%'")
-				.setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
+		List<Topic> topics = (List<Topic>) session.createQuery("from Topic as topic where lower(topic.label.label_name ) like concat('%',lower(:label_name),'%')")
+					.setParameter("label_name", label).setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
 		session.getTransaction().commit();
 		session.close();
 		return topics;

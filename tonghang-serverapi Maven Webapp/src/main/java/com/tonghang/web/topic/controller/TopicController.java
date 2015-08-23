@@ -137,7 +137,7 @@ public class TopicController extends BaseController{
 	@RequestMapping("join")
 	public ResponseEntity<Map<String,Object>> joinTopic(@RequestParam String mapstr) throws JsonParseException, JsonMappingException, IOException{
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
-		Map<String,Object> result = topicService.joinOrLeaveTopic((String)map.get("topic_id"), (String)map.get("client_id"),true);
+		Map<String,Object> result = topicService.joinOrLeaveTopic((String)map.get("topic_id"), (String)map.get("client_id"),true,(Boolean)map.get("isOwner"));
 		return new ResponseEntity<Map<String,Object>>(result,HttpStatus.OK);
 	}
 	/**
@@ -158,7 +158,7 @@ public class TopicController extends BaseController{
 	public ResponseEntity<Map<String,Object>> leaveTopic(@RequestParam String mapstr) throws JsonParseException, JsonMappingException, IOException{
 		System.out.println("---------------------------leave");
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
-		Map<String,Object> result = topicService.joinOrLeaveTopic((String)map.get("topic_id"), (String)map.get("client_id"),false);
+		Map<String,Object> result = topicService.joinOrLeaveTopic((String)map.get("topic_id"), (String)map.get("client_id"),false,(Boolean)map.get("isOwner"));
 		return new ResponseEntity<Map<String,Object>>(result,HttpStatus.OK);
 	}
 	/**

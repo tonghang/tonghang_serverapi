@@ -20,7 +20,10 @@ public class StringUtil {
 		System.out.println(param[index]);
 		return param[index];
 	}
-	
+	public static String seperate(String cp,int index){
+		String[] obj = cp.split("-");
+		return obj[index];
+	}
 	public static String randomCode(int level){
 		String randCode = "abcdefghijklmnopqrstuvwxyz";
 		String numberic = "1234567890";

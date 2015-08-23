@@ -104,6 +104,7 @@ public class UserController extends BaseController{
 	@RequestMapping(value = "/regist")
 	public ResponseEntity<Map<String,Object>> registUser(@RequestParam String mapstr) throws JsonParseException, JsonMappingException, IOException, EmailExistException, NickNameExistException {
 //		AccountBean acc = objectMapper.readValue(json, AccountBean.class);
+		System.out.println("开始注册");
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
 		User user = new User();
 		String username = (String)map.get("username");

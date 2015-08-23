@@ -27,6 +27,7 @@ import com.tonghang.web.common.util.StringUtil;
 import com.tonghang.web.friend.dao.FriendDao;
 import com.tonghang.web.label.dao.LabelDao;
 import com.tonghang.web.label.pojo.Label;
+import com.tonghang.web.statistics.service.StatisticsService;
 import com.tonghang.web.topic.dao.TopicDao;
 import com.tonghang.web.topic.pojo.Topic;
 import com.tonghang.web.topic.util.TopicUtil;
@@ -45,6 +46,8 @@ public class UserService {
 	private TopicDao topicDao;
 	@Resource(name="friendDao")
 	private FriendDao friendDao;
+	@Resource(name="statisticsService")
+	private StatisticsService statisticsService;
 	
 	@Resource(name="userUtil")
 	private UserUtil userUtil;
@@ -120,13 +123,13 @@ public class UserService {
 	public Map<String,Object> registUser(User user) throws EmailExistException, NickNameExistException{
 		Map<String,Object> result = new HashMap<String, Object>();
 		//去掉标签部分
-		Iterator<Label> it = user.getLabellist().iterator();
-		while(it.hasNext()){
-			Label label = it.next();
-			System.out.println("regist:"+label.getLabel_name());
-			if(labelDao.findLabelById(label.getLabel_name())==null)
-				labelDao.save(label);
-		}
+//		Iterator<Label> it = user.getLabellist().iterator();
+//		while(it.hasNext()){
+//			Label label = it.next();
+//			System.out.println("regist:"+label.getLabel_name());
+//			if(labelDao.findLabelById(label.getLabel_name())==null)
+//				labelDao.save(label);
+//		}
 		if(userDao.findUserByEmail(user.getEmail())!=null){
 			throw new EmailExistException("注册失败！该邮箱已被注册");
 		}else if(userDao.findUserByNickName(user.getUsername())!=null){
@@ -288,30 +291,49 @@ public class UserService {
 		// TODO Auto-generated method stub
 		Map<String,Object> result = new HashMap<String, Object>();
 		User user = userDao.findUserById(client_id);
-		User u = userDao.findUserByNickName(username);
+//		User u = userDao.findUserByNickName(username);
 		System.out.println("新注册的用户的client_id:"+user);
 		System.out.println("新注册的用户的client_id:"+client_id);
 		if(user==null){
 			throw new UpdateUserException("更新失败，当前用户不存在");
 		}
-		if(u==null){
-			if(!birth.equals(user.getBirth())&&birth!=null)
-				user.setBirth(birth);
-			if(!city.equals(user.getCity())&&city!=null)
-				user.setCity(city);
-			if(!sex.equals(user.getSex())&&sex!=null)
-				user.setSex(sex);
-			if(username!=null&&!username.equals(user.getUsername())){
-				user.setUsername(username);
-				HuanXinUtil.changeUsername(user.getUsername(),user.getClient_id());
+		if(birth!=null&&!birth.equals(user.getBirth()))
+			user.setBirth(birth);
+		//修改省份前先清空省份
+		if(city!=null){
+			user.setProvince(null);
+			user.setCity(null);
+			if(city.contains("-")){
+				System.out.println("传进来的city: "+city);
+				String pr = StringUtil.seperate(city, 0);
+				String ci = StringUtil.seperate(city, 1);
+				System.out.println("解析完，city："+ci+"  province："+pr);
+				if(!ci.equals(user.getCity())&&city!=null)
+					user.setCity(ci);
+				if(!pr.equals(user.getProvince())&&pr!=null)
+					user.setProvince(pr);
+			}else{
+				user.setProvince(city);
 			}
-			userDao.saveOrUpdate(user);
-			Map<String,Object> usermap = userUtil.userToMapConvertor(user,client_id);
-			usermap.putAll(CommonMapUtil.baseMsgToMapConvertor());
-			result.put("success", usermap);
-		}else{
-			throw new NickNameExistException("修改失败！该昵称已存在。");
 		}
+		if(sex!=null&&!sex.equals(user.getSex()))
+			user.setSex(sex);
+		if(username!=null&&!username.equals(user.getUsername())){
+			 if(userDao.findUserByNickName(user.getUsername())!=null){
+				throw new NickNameExistException("注册失败！该昵称已经被注册");
+			}else{
+				user.setUsername(username);
+				HuanXinUtil.changeUsername(user.getUsername(),user.getClient_id());				
+			}
+		}
+		userDao.saveOrUpdate(user);
+		Map<String,Object> usermap = userUtil.userToMapConvertor(user,client_id);
+		usermap.putAll(CommonMapUtil.baseMsgToMapConvertor());
+		result.put("success", usermap);
+//		if(u==null){
+//		}else{
+//			throw new NickNameExistException("修改失败！该昵称已存在。");
+//		}
 		return result;
 	}
 	/**

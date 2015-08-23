@@ -70,5 +70,10 @@
 		<property name="maxUploadSize" value="-1"/>
 		<property name="defaultEncoding" value="utf-8"/>
 	</bean> 
-	
+	<mvc:interceptors>  
+	  <mvc:interceptor>  
+	   <mvc:mapping path="/user/*" /> 
+	   <bean class="com.tonghang.web.statistics.interceptor.StatisticsInterceptor" />  
+	  </mvc:interceptor>  
+	 </mvc:interceptors>
 </beans>

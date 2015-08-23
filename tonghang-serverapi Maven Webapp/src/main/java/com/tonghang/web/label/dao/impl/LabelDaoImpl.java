@@ -48,9 +48,7 @@ public class LabelDaoImpl implements LabelDao{
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}
-		session.flush(); 
-		session.clear();
-		Query query =  session.createQuery("from Label as label where lower(label.label_name) like lower(:label_name)");
+		Query query =  session.createQuery("from Label as label where lower(label.label_name) like concat('%',lower(:label_name),'%')");
 		List<Label> list =query.setParameter("label_name",label_name ).list();
 		session.getTransaction().commit();
 		session.close();

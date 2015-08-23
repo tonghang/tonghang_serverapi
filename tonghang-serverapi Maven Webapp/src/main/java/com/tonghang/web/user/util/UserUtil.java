@@ -77,13 +77,14 @@ public class UserUtil {
 			for(Label l:u.getLabellist()){
 				labels.add(l.getLabel_name());
 			}
+			String city = u.getCity()==null?u.getProvince():u.getProvince()+"-"+u.getCity();
 			boolean is_friend = userService.isFriend(client_id, u.getClient_id());
 			msg.put("labels", labels);
 			msg.put("email", u.getEmail());
 			msg.put("username", u.getUsername());
 			msg.put("sex", u.getSex());
 			msg.put("phone", u.getPhone());
-			msg.put("city", u.getCity());
+			msg.put("city", city);
 			msg.put("client_id", u.getClient_id());
 			msg.put("image", Constant.IMAGE_PATH+u.getClient_id()+"/"+Constant.IMAGE_NAME);
 			msg.put("created_at", u.getCreated_at());
@@ -106,15 +107,20 @@ public class UserUtil {
 		Map<String,Object> msg = new HashMap<String, Object>();
 		Map<String,Object> usermap = new HashMap<String, Object>();
 		boolean is_friend = userService.isFriend(client_id, user.getClient_id());
-		for(Label l:user.getLabellist()){
-			labels.add(l.getLabel_name());
+		if(user.getLabellist()!=null){
+			for(Label l:user.getLabellist()){
+				labels.add(l.getLabel_name());
+			}
+			msg.put("labels", labels);			
+		}else{
+			msg.put("labels", null);	
 		}
-		msg.put("labels", labels);
+		String city = user.getCity()==null?user.getProvince():user.getProvince()+"-"+user.getCity();
 		msg.put("email", user.getEmail());
 		msg.put("sex", user.getSex());
 		msg.put("username", user.getUsername());
 		msg.put("phone", user.getPhone());
-		msg.put("city", user.getCity());
+		msg.put("city", city);
 		msg.put("client_id", user.getClient_id());
 		msg.put("image", Constant.IMAGE_PATH+user.getClient_id()+"/"+Constant.IMAGE_NAME);
 		msg.put("created_at", user.getCreated_at());
@@ -137,15 +143,22 @@ public class UserUtil {
 		List<String> labels = new ArrayList<String>();
 		Map<String,Object> msg = new HashMap<String, Object>();
 		Map<String,Object> usermap = new HashMap<String, Object>();
-		for(Label l:user.getLabellist()){
-			labels.add(l.getLabel_name());
+		if(user.getLabellist()!=null){
+			for(Label l:user.getLabellist()){
+				labels.add(l.getLabel_name());
+			}
+			msg.put("labels", labels);			
+		}else{
+			msg.put("labels", null);	
 		}
-		msg.put("labels", labels);
+		String city = "";
+		if(user.getProvince()==null||"".equals(user.getProvince()))
+			city = "未知";
+		else city = user.getCity()==null||"".equals(user.getCity())?user.getProvince():user.getProvince()+"-"+user.getCity();
 		msg.put("email", user.getEmail());
 		msg.put("sex", user.getSex());
 		msg.put("username", user.getUsername());
 		msg.put("phone", user.getPhone());
-		msg.put("city", user.getCity());
 		msg.put("client_id", user.getClient_id());
 		msg.put("image", Constant.IMAGE_PATH+user.getClient_id()+"/"+Constant.IMAGE_NAME);
 		msg.put("created_at", user.getCreated_at());
@@ -168,24 +181,41 @@ public class UserUtil {
 		Map<String,Object> usermap = CommonMapUtil.baseMsgToMapConvertor();
 		Map<String,Object> result = new HashMap<String, Object>();
 		List<String> label_names = new ArrayList<String>();
+		List<Boolean> is_same = new ArrayList<Boolean>();
 		for(Label l:me.getLabellist()){
 			label_names.add(l.getLabel_name());
 		}
 		for(User u:users){
 			List<String> labels = new ArrayList<String>();
 			Map<String,Object> msg = new HashMap<String, Object>();
+			//比较当前用户哪些标签是根据使用者的标签被推出来的
 			for(Label l:u.getLabellist()){
-				labels.add(l.getLabel_name());
+				boolean ismarked = false;
+				for(String lab_name:label_names){
+					System.out.println("我的lab："+lab_name+"    他的lab："+l.getLabel_name());
+					if(l.getLabel_name().equalsIgnoreCase(lab_name)||l.getLabel_name().contains(lab_name)||lab_name.contains(l.getLabel_name())){
+						ismarked = true;
+					}	
+				}
+				if(ismarked){	
+					labels.add(l.getLabel_name()+"\t\t");
+					System.out.println("标签"+l.getLabel_name()+"有相同");
+				}else{
+					System.out.println("标签"+l.getLabel_name()+"没有相同");
+					labels.add(l.getLabel_name());							
+				}
 			}
 			boolean is_friend = userService.isFriend(me.getClient_id(), u.getClient_id());
 			//我的标签，送给前台和推荐的用户比对，相同的就标记高亮
-			msg.put("same_labels", label_names);
+			String city = "";
+			if(u.getProvince()==null||"".equals(u.getProvince()))
+				city = "未知";
+			else city = u.getCity()==null||"".equals(u.getCity())?u.getProvince():u.getProvince()+"-"+u.getCity();
 			msg.put("labels", labels);
 			msg.put("email", u.getEmail());
 			msg.put("username", u.getUsername());
 			msg.put("sex", u.getSex());
 			msg.put("phone", u.getPhone());
-			msg.put("city", u.getCity());
 			msg.put("client_id", u.getClient_id());
 			msg.put("image", Constant.IMAGE_PATH+u.getClient_id()+"/"+Constant.IMAGE_NAME);
 			msg.put("created_at", u.getCreated_at());
@@ -200,7 +230,7 @@ public class UserUtil {
 			usersmsg.add(msg);
 		}
 		//排序操作，详细请看 SortUtil 类
-//		usersmsg = SortUtil.sortByLabelName(usersmsg, label_names);
+		usersmsg = SortUtil.sortByLabelName(usersmsg, label_names);
 		usermap.put("users", usersmsg);
 		result.put("success", usermap);
 		return result;

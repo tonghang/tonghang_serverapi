@@ -26,7 +26,10 @@ public class StatisticsDaoImpl implements StatisticsDao {
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}
-		session.saveOrUpdate(auser);
+		Query query = session.createQuery("from ActiveUser auser where auser.date = :date and auser.user.client_id = :client_id")
+													.setParameter("date", auser.getDate()).setParameter("client_id", auser.getUser().getClient_id());
+		if(query.uniqueResult()==null)
+			session.saveOrUpdate(auser);
 		session.getTransaction().commit();
 	}
 

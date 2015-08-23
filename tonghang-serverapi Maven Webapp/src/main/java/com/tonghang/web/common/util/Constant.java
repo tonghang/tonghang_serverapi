@@ -25,7 +25,7 @@ public class Constant extends HuanXinUtil{
 	public static String JPushBasic="ZWI0ZTc5YzRhYjE4MmQ3MjVlYzJmZjE1OmVkMzIxNjdhODY0MWFiMWVlODY1OGIzYQ==";
 	public static final String CLIENT_ID = "YXA6zpmeoHX8EeS5LFOLSMeZrA";
 	public static final String CLIENT_SECRET = "YXA62xaG_k1OsmSdGYtjIKE3XbO0ahw";
-	
+	public static final String CHANGER_ID = "0ba20eab27544eb8867e543b4db8c13e";
 	public static final int PAGESIZE = 10;
 	
 	public static String CREATEGROUP = "server create group";

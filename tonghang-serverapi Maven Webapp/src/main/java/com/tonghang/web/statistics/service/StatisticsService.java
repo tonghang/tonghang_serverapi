@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.tonghang.web.statistics.dao.StatisticsDao;
 import com.tonghang.web.statistics.pojo.ActiveUser;
+import com.tonghang.web.user.pojo.User;
 
 @Service("statisticsService")
 public class StatisticsService {
@@ -32,4 +33,5 @@ public class StatisticsService {
 		System.out.println("isActivedToday:::"+statisticsDao.getDistinctRecord(client_id, new Date()));
 		return (statisticsDao.getDistinctRecord(client_id, new Date())==0)?false:true;
 	}
+	
 }
