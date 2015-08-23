@@ -19,11 +19,11 @@ import javax.persistence.TemporalType;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import com.tonghang.web.common.pojo.FeedBack;
 import com.tonghang.web.label.pojo.Label;
+import com.tonghang.web.statistics.pojo.Channel;
 import com.tonghang.web.topic.pojo.Topic;
 
 /**
@@ -72,8 +72,9 @@ public class User {
 	@Column(name="city")
 	private String city;
 	
-	@Column(name="ext2")
-	private String ext2;
+	@ManyToOne()
+	@JoinColumn(name="channel_id")
+	private Channel channel;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="created_at",updatable=true)
@@ -204,14 +205,13 @@ public class User {
 	public void setProvince(String province) {
 		this.province = province;
 	}
-	public String getExt2() {
-		return ext2;
-	}
 
-	public void setExt2(String ext2) {
-		this.ext2 = ext2;
+	public Channel getChannel() {
+		return channel;
 	}
-
+	public void setChannel(Channel channel) {
+		this.channel = channel;
+	}
 	public Date getCreated_at() {
 		return created_at;
 	}
