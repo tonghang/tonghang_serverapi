@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import com.tonghang.web.common.util.TimeUtil;
 import com.tonghang.web.statistics.dao.StatisticsDao;
 import com.tonghang.web.statistics.pojo.ActiveUser;
+import com.tonghang.web.statistics.pojo.Channel;
 
 @Repository("statisticsDao")
 public class StatisticsDaoImpl implements StatisticsDao {
@@ -56,6 +57,17 @@ public class StatisticsDaoImpl implements StatisticsDao {
 		int count = query.list().size();
 		System.out.println(query.getQueryString());
 		return count;
+	}
+
+	@Override
+	public void createChannel(Channel chan) {
+		// TODO Auto-generated method stub
+		Session session = sessionFactory.openSession();
+		if(!session.getTransaction().isActive()){
+			session.getTransaction().begin();
+		}
+		session.saveOrUpdate(chan);
+		session.getTransaction().commit();
 	}
 
 }
