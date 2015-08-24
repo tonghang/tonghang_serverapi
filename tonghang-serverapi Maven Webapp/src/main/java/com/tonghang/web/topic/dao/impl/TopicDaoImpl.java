@@ -189,6 +189,17 @@ public class TopicDaoImpl implements TopicDao{
 		session.close();
 		return users;
 	}
+	@Override
+	public void delete(Topic topic) {
+		// TODO Auto-generated method stub
+		Session session = sessionFactory.openSession();
+		if(!session.getTransaction().isActive()){
+			session.getTransaction().begin();
+		}
+		session.delete(topic);
+		session.getTransaction().commit();
+		session.close();
+	}
 
 	
 }

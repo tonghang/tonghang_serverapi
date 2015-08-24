@@ -168,5 +168,14 @@ public class HuanXinUtil {
 				new HttpEntity<Map<String,Object>>(parts,header);
 		DataUtil.putEntity(Constant.HUANXIN_URL+"chatgroups/"+group_id,requestEntity);
 	}
+	
+	public static void deleteTopic(String huanxin_group_id){
+		HttpHeaders header = new HttpHeaders();
+		Map<String,Object> parts = new HashMap<String, Object>();
+		header.add("Authorization","Bearer "+HUANXINtoken);
+		HttpEntity<Map<String,Object>> requestEntity=
+				new HttpEntity<Map<String,Object>>(parts,header);
+		DataUtil.deleteEntity(Constant.HUANXIN_URL+"chatgroups/"+huanxin_group_id,requestEntity);
+	}
 
 }

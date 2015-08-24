@@ -43,7 +43,6 @@ public class DataUtil {
 	public static <T> ResponseEntity<T> getEntity(String url, Class<T> type,  Object... uriVariables){						
 		return jsonTemplate.getForEntity(url, type);
 	}
-	
 	public static <T> ResponseEntity<T> postEntity(String url, Object data, Class<T> type,  Object... uriVariables){	
 		return jsonTemplate.postForEntity(url, data, type, uriVariables);
 	}
@@ -62,5 +61,6 @@ public class DataUtil {
 	public static <T> ResponseEntity<T> templateGetExchange(String url, HttpEntity<T> requestEntity, Class<T> responseType, Object... uriVariables){
 		return (ResponseEntity<T>) jsonTemplate.exchange(url, HttpMethod.GET, requestEntity,responseType,uriVariables);
 	}
+	
 
 }

@@ -202,4 +202,17 @@ public class TopicService {
 		result.put("success", topicmap);
 		return result;
 	}
+	/**
+	 * 按huanxin_group_id删除话题
+	 * @param huanxin_group_id
+	 */
+	public Map<String,Object> deleteTopic(String huanxin_group_id){
+		Map<String,Object> result = new HashMap<String, Object>();
+		Map<String,Object> topicmap = CommonMapUtil.baseMsgToMapConvertor();
+		Topic topic = topicDao.findTopicById(huanxin_group_id);
+		HuanXinUtil.deleteTopic(huanxin_group_id);
+		topicDao.delete(topic);
+		result.put("success", topicmap);
+		return result;
+	}
 }

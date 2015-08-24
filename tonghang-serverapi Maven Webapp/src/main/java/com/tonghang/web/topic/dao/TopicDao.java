@@ -20,5 +20,7 @@ public interface TopicDao {
 	public void userJoinTopic(User user,Topic topic);
 	public void userLeaveTopic(User user);
 	
+	public void delete(Topic topic);
+	
 	public List<User> checkMemberFromTopic(String topic_id,int nowpage);
 }

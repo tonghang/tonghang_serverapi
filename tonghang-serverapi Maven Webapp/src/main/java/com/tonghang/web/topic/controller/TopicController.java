@@ -179,11 +179,25 @@ public class TopicController extends BaseController{
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
 		return new ResponseEntity<Map<String,Object>>(topicService.checkTopicMember((String)map.get("client_id"),(String)map.get("topic_id"), (Integer)map.get("pageindex")),HttpStatus.OK);
 	}
-	
+	/**
+	 * 业务功能：根据topic_id获取topic所有信息
+	 * @param huanxin_group_id
+	 * @param mapstr
+	 * @return
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
 	@RequestMapping("/{huanxin_group_id}")
 	public ResponseEntity<Map<String,Object>> checkTopic(@PathVariable String huanxin_group_id,@RequestParam String mapstr) throws JsonParseException, JsonMappingException, IOException{
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
 		return new ResponseEntity<Map<String,Object>>(topicService.getTopicById(huanxin_group_id),HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="delete")
+	public ResponseEntity<Map<String,Object>> deleteTopic(@RequestParam String mapstr) throws JsonParseException, JsonMappingException, IOException{
+		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
+		return new ResponseEntity<Map<String,Object>>(topicService.deleteTopic((String)map.get("huanxin_group_id")),HttpStatus.OK);
 	}
 	
 }
