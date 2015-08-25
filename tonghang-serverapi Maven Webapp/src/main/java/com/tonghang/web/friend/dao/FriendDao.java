@@ -11,4 +11,5 @@ public interface FriendDao {
 	
 	public List<Invitation> getInvitationByUserId(String client_id);
 	public boolean isFriend(String my,String friend);
+	
 }

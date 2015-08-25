@@ -49,6 +49,7 @@ public class StatisticsInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object arg2) throws Exception {
 		// TODO Auto-generated method stub
+		System.out.println("进入拦截器-----------------------------------进入拦截器");
 		String mapstr = request.getParameter("mapstr");
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
 		String client_id = (String) map.get("client_id");

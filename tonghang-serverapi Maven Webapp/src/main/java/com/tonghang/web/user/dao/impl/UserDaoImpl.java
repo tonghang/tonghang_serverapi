@@ -210,4 +210,30 @@ public class UserDaoImpl implements UserDao {
 		return user;
 	}
 
+	@Override
+	public void addBlocker(User me, User blocker) {
+		// TODO Auto-generated method stub
+		Session session = sessionFactory.openSession();
+		if(!session.getTransaction().isActive()){
+			session.getTransaction().begin();
+		}
+		me.getBlacklist().add(blocker);
+		session.update(me);
+		session.getTransaction().commit();	
+		session.close();
+	}
+
+	@Override
+	public void deleteBlock(User me, User blcoker) {
+		// TODO Auto-generated method stub
+		Session session = sessionFactory.openSession();
+		if(!session.getTransaction().isActive()){
+			session.getTransaction().begin();
+		}
+		me.getBlacklist().remove(blcoker);
+		session.update(me);
+		session.getTransaction().commit();	
+		session.close();
+	}
+
 }

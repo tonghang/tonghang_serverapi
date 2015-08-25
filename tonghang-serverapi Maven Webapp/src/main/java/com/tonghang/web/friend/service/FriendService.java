@@ -141,6 +141,12 @@ public class FriendService {
 		return result;
 	}
 
+	/**
+	 * 是否被邀请
+	 * @param inviter_id	邀请人的client_id
+	 * @param invitee_id	被邀请人的client_id
+	 * @return
+	 */
 	public boolean isInvited(String inviter_id, String invitee_id) {
 		// TODO Auto-generated method stub
 		List<Invitation> invitations = friendDao.getInvitationByUserId(invitee_id);
@@ -152,5 +158,6 @@ public class FriendService {
 		}
 		return false;
 	}
+	
 	
 }

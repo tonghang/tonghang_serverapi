@@ -9,6 +9,7 @@ public interface UserDao {
 	
 	public void save(User user);
 	public void addFriend(User my,User friend);
+	public void addBlocker(User me,User blocker);
 	
 	public User findUserByEmail(String email);
 	public User findUserByNickName(String nickname);
@@ -22,5 +23,7 @@ public interface UserDao {
 	public void deleteLabel(String client_id,Label label);
 	public void deleteAllLabel(String client_id);
 	public void deleteFriend(User my,User friend);
+	
+	public void deleteBlock(User me,User blcoker);
 	
 }

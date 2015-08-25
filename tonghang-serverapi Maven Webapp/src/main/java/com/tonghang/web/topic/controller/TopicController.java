@@ -194,6 +194,14 @@ public class TopicController extends BaseController{
 		return new ResponseEntity<Map<String,Object>>(topicService.getTopicById(huanxin_group_id),HttpStatus.OK);
 	}
 	
+	/**
+	 * 业务功能：删除话题
+	 * @param mapstr
+	 * @return
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
 	@RequestMapping(value="delete")
 	public ResponseEntity<Map<String,Object>> deleteTopic(@RequestParam String mapstr) throws JsonParseException, JsonMappingException, IOException{
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);

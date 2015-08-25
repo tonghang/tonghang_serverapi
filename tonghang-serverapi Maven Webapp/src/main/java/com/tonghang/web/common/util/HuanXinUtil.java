@@ -1,7 +1,9 @@
 package com.tonghang.web.common.util;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -168,7 +170,10 @@ public class HuanXinUtil {
 				new HttpEntity<Map<String,Object>>(parts,header);
 		DataUtil.putEntity(Constant.HUANXIN_URL+"chatgroups/"+group_id,requestEntity);
 	}
-	
+	/**
+	 * 业务功能：删除话题
+	 * @param huanxin_group_id
+	 */
 	public static void deleteTopic(String huanxin_group_id){
 		HttpHeaders header = new HttpHeaders();
 		Map<String,Object> parts = new HashMap<String, Object>();
@@ -178,4 +183,33 @@ public class HuanXinUtil {
 		DataUtil.deleteEntity(Constant.HUANXIN_URL+"chatgroups/"+huanxin_group_id,requestEntity);
 	}
 
+	/**
+	 * 业务功能：
+	 * @param owner
+	 * @param blocker
+	 */
+	public static void blockUser(String owner,String blocker){
+		HttpHeaders header = new HttpHeaders();
+		List<String> blockerlist = new ArrayList<String>();
+		blockerlist.add(blocker);
+		Map<String,Object> parts = new HashMap<String, Object>();
+		header.add("Authorization","Bearer "+HUANXINtoken);
+		HttpEntity<Map<String,Object>> requestEntity=
+				new HttpEntity<Map<String,Object>>(parts,header);
+		parts.put("usernames", blockerlist);
+		DataUtil.postEntity(Constant.HUANXIN_URL+"users/"+owner+"/blocks/users",requestEntity, Map.class);
+	}
+	/**
+	 * 业务功能：从黑名单中删除某用户
+	 * @param owner
+	 * @param blocker
+	 */
+	public static void deblockUser(String owner,String blocker){
+		HttpHeaders header = new HttpHeaders();
+		Map<String,Object> parts = new HashMap<String, Object>();
+		header.add("Authorization","Bearer "+HUANXINtoken);
+		HttpEntity<Map<String,Object>> requestEntity=
+				new HttpEntity<Map<String,Object>>(parts,header);
+		DataUtil.deleteEntity(Constant.HUANXIN_URL+"users/"+owner+"/blocks/users/"+blocker);
+	}
 }

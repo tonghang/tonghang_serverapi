@@ -106,6 +106,13 @@ public class User {
 	@OneToMany(mappedBy="user")
 	private Set<FeedBack> feedbacks;
 	
+	@ManyToMany()
+	@JoinTable(name="blacklist",
+		joinColumns=@JoinColumn(name="client_id"),
+		inverseJoinColumns=@JoinColumn(name="blocker_id"))
+	@LazyCollection(LazyCollectionOption.FALSE)
+	private Set<User> blacklist;
+	
 	public Topic getTopic() {
 		return topic;
 	}
@@ -238,6 +245,13 @@ public class User {
 	}
 	public void setFeedbacks(Set<FeedBack> feedbacks) {
 		this.feedbacks = feedbacks;
+	}
+	
+	public Set<User> getBlacklist() {
+		return blacklist;
+	}
+	public void setBlacklist(Set<User> blacklist) {
+		this.blacklist = blacklist;
 	}
 	@Override
 	public int hashCode() {
