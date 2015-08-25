@@ -10,6 +10,7 @@ import java.util.TimerTask;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
@@ -176,11 +177,11 @@ public class HuanXinUtil {
 	 */
 	public static void deleteTopic(String huanxin_group_id){
 		HttpHeaders header = new HttpHeaders();
-		Map<String,Object> parts = new HashMap<String, Object>();
 		header.add("Authorization","Bearer "+HUANXINtoken);
+		System.out.println("deleteTopic:　　"+HUANXINtoken);
 		HttpEntity<Map<String,Object>> requestEntity=
-				new HttpEntity<Map<String,Object>>(parts,header);
-		DataUtil.deleteEntity(Constant.HUANXIN_URL+"chatgroups/"+huanxin_group_id,requestEntity);
+				new HttpEntity<Map<String,Object>>(header);
+		DataUtil.deleteForEntity(Constant.HUANXIN_URL+"chatgroups/"+huanxin_group_id,requestEntity);
 	}
 
 	/**
@@ -210,6 +211,6 @@ public class HuanXinUtil {
 		header.add("Authorization","Bearer "+HUANXINtoken);
 		HttpEntity<Map<String,Object>> requestEntity=
 				new HttpEntity<Map<String,Object>>(parts,header);
-		DataUtil.deleteEntity(Constant.HUANXIN_URL+"users/"+owner+"/blocks/users/"+blocker);
+		DataUtil.deleteForEntity(Constant.HUANXIN_URL+"users/"+owner+"/blocks/users/"+blocker,requestEntity);
 	}
 }

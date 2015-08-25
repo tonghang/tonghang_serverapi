@@ -36,8 +36,11 @@ public class DataUtil {
 //		 jsonTemplate.exchange(url, HttpMethod.PUT, (HttpEntity)data, Map.class);
 	}
 	
-	public static void deleteEntity(String url, Object... uriVariables){						
-		jsonTemplate.delete(url,uriVariables);
+	public static void deleteEntity(String url){						
+		jsonTemplate.delete(url);
+	}
+	public static <T> ResponseEntity<T> deleteForEntity(String url, HttpEntity<T> requestEntity){						
+		return (ResponseEntity<T>) jsonTemplate.exchange(url,HttpMethod.DELETE,requestEntity,Map.class);
 	}
 	
 	public static <T> ResponseEntity<T> getEntity(String url, Class<T> type,  Object... uriVariables){						

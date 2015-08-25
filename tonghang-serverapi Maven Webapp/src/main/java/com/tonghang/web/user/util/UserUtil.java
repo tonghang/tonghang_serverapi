@@ -77,7 +77,10 @@ public class UserUtil {
 			for(Label l:u.getLabellist()){
 				labels.add(l.getLabel_name());
 			}
-			String city = u.getCity()==null?u.getProvince():u.getProvince()+"-"+u.getCity();
+			String city = "";
+			if(u.getProvince()==null||"".equals(u.getProvince()))
+				city = "未知";
+			else city = u.getCity()==null||"".equals(u.getCity())?u.getProvince():u.getProvince()+"-"+u.getCity();
 			boolean is_friend = userService.isFriend(client_id, u.getClient_id());
 			msg.put("labels", labels);
 			msg.put("email", u.getEmail());
@@ -115,7 +118,10 @@ public class UserUtil {
 		}else{
 			msg.put("labels", null);	
 		}
-		String city = user.getCity()==null?user.getProvince():user.getProvince()+"-"+user.getCity();
+		String city = "";
+		if(user.getProvince()==null||"".equals(user.getProvince()))
+			city = "未知";
+		else city = user.getCity()==null||"".equals(user.getCity())?user.getProvince():user.getProvince()+"-"+user.getCity();
 		msg.put("email", user.getEmail());
 		msg.put("sex", user.getSex());
 		msg.put("username", user.getUsername());

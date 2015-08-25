@@ -53,7 +53,7 @@ public class StatisticsInterceptor implements HandlerInterceptor {
 		String mapstr = request.getParameter("mapstr");
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
 		String client_id = (String) ((Map)map.get("token")).get("client_id");
-		System.out.println("进入intercepter ："+client_id);
+		System.out.println("拦截器拦截到的client_id: "+client_id);
 		if(client_id!=null&&!"".equals(client_id)&&!statisticsService.isActivedToday(client_id)){
 			System.out.println("添加活跃记录");
 			ActiveUser auser = new ActiveUser();

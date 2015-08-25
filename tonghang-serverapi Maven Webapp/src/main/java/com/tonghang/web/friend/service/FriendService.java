@@ -58,7 +58,7 @@ public class FriendService {
 		invitation.setInviter(inviter);
 		invitation.setReason(reason);
 		friendDao.saveInvitation(invitation);
-		JPushUtil.push(invitee.getClient_id(), inviter.getUsername()+"请求添加你为好友");
+		JPushUtil.push(invitee_id, inviter_id,inviter.getUsername(),Constant.INVITATION,Constant.INVITATION_MSG);
 		Map<String,Object>  result = new HashMap<String, Object>();
 		result.put("success", CommonMapUtil.baseMsgToMapConvertor());
 		return result;

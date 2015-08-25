@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tonghang.web.common.util.Constant;
 import com.tonghang.web.common.util.JPushUtil;
 import com.tonghang.web.friend.service.FriendService;
 import com.tonghang.web.user.pojo.User;
@@ -91,9 +92,9 @@ public class FriendController {
 		User friend = userService.findUserById(inviter_id);
 		if(status){
 			friendService.addFriend(my, friend);
-			JPushUtil.push(inviter_id+"", my.getUsername()+"已经同意您的好友请求");
+			JPushUtil.push(inviter_id,my.getClient_id(), my.getUsername(),Constant.AGREE_ADD_FRIEND,Constant.AGREE_ADD_MSG);
 		}else
-			JPushUtil.push(inviter_id+"", my.getUsername()+"已经拒绝您的好友请求");
+			JPushUtil.push(inviter_id,my.getClient_id(), my.getUsername(),Constant.REFUSE_ADD_FRIEND,Constant.REFUSE_ADD_MSG);
 		Map<String,Object> result = friendService.deleteInvitation(inviter_id,invitee_id);
 		friendService.deleteInvitation(invitee_id,inviter_id);
 		return new ResponseEntity<Map<String,Object>>(result,HttpStatus.OK);

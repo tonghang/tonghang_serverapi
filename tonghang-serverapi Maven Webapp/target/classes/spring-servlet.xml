@@ -73,9 +73,7 @@
 	<mvc:interceptors>  
 	  <mvc:interceptor>  
 	   <mvc:mapping path="/user/*" /> 
-	   <mvc:mapping path="/user/*/*" /> 
 	   <mvc:mapping path="/topic/*" /> 
-	   <mvc:mapping path="/topic/*/*" /> 
 	   <bean class="com.tonghang.web.statistics.interceptor.StatisticsInterceptor" />  
 	  </mvc:interceptor>  
 	 </mvc:interceptors>

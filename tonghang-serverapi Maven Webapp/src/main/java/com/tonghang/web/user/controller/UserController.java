@@ -323,4 +323,9 @@ public class UserController extends BaseController{
 		return new ResponseEntity<Map<String,Object>>(userService.userTopic((String)map.get("client_id"),(Integer)map.get("pageindex")), HttpStatus.OK);
 	}
 	
+	@RequestMapping(value="{client_id}/push")
+	public ResponseEntity<Map<String,Object>> pushNewuserToOlder(@PathVariable String client_id) throws SearchNoResultException{
+		return new ResponseEntity<Map<String,Object>>(userService.newUserRecommendation(client_id), HttpStatus.OK);
+	}
+	
 }

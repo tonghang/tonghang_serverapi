@@ -19,8 +19,10 @@ import com.tonghang.web.common.exception.NickNameExistException;
 import com.tonghang.web.common.exception.UpdateUserException;
 import com.tonghang.web.common.exception.SearchNoResultException;
 import com.tonghang.web.common.util.CommonMapUtil;
+import com.tonghang.web.common.util.Constant;
 import com.tonghang.web.common.util.EmailUtil;
 import com.tonghang.web.common.util.HuanXinUtil;
+import com.tonghang.web.common.util.JPushUtil;
 import com.tonghang.web.common.util.SecurityUtil;
 import com.tonghang.web.common.util.SortUtil;
 import com.tonghang.web.common.util.StringUtil;
@@ -397,9 +399,31 @@ public class UserService {
 			throw new SearchNoResultException("该用户没有话题");
 		return TopicUtil.topicsToMapConvertor(topics);
 	}
-	
+	/**
+	 * 通过id查找某用户
+	 * @param client_id
+	 * @return
+	 */
 	public User findUserById(String client_id){
 		return userDao.findUserById(client_id);
 	}
 	
+	public Map<String,Object> newUserRecommendation(String client_id) throws SearchNoResultException{
+		User newuser = findUserById(client_id);
+		Map<String,Object>  result = new HashMap<String, Object>();
+		result.put("success", CommonMapUtil.baseMsgToMapConvertor());
+		int index = 1;
+		while(true){
+			Map<String,Object> olders = recommend(client_id, index);
+			Map<String,Object> oldersmap = ((Map<String,Object>)olders.get("success"));
+			if(!oldersmap.get("code").equals("200"))
+				break;
+			List<Map<String,Object>> olderlist = (List<Map<String, Object>>) oldersmap.get("users");
+			for(Map<String,Object> older:olderlist){
+				JPushUtil.push((String)older.get("client_id"), client_id, newuser.getUsername(), Constant.RECOMMEND_NEWBE,Constant.NEWBE_MSG);
+			}
+			index++;
+		}
+		return result;
+	}
 }

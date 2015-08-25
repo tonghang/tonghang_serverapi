@@ -196,6 +196,8 @@ public class TopicDaoImpl implements TopicDao{
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}
+		topic.setUsers(null);
+		session.update(topic);
 		session.delete(topic);
 		session.getTransaction().commit();
 		session.close();
