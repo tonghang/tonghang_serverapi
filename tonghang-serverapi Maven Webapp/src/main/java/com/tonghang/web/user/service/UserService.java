@@ -3,7 +3,6 @@ package com.tonghang.web.user.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,23 +11,23 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
-import com.tonghang.web.common.exception.EmailExistException;
 import com.tonghang.web.common.exception.BaseException;
+import com.tonghang.web.common.exception.EmailExistException;
 import com.tonghang.web.common.exception.LoginException;
 import com.tonghang.web.common.exception.NickNameExistException;
-import com.tonghang.web.common.exception.UpdateUserException;
 import com.tonghang.web.common.exception.SearchNoResultException;
+import com.tonghang.web.common.exception.UpdateUserException;
 import com.tonghang.web.common.util.CommonMapUtil;
 import com.tonghang.web.common.util.Constant;
 import com.tonghang.web.common.util.EmailUtil;
 import com.tonghang.web.common.util.HuanXinUtil;
 import com.tonghang.web.common.util.JPushUtil;
 import com.tonghang.web.common.util.SecurityUtil;
-import com.tonghang.web.common.util.SortUtil;
 import com.tonghang.web.common.util.StringUtil;
 import com.tonghang.web.friend.dao.FriendDao;
 import com.tonghang.web.label.dao.LabelDao;
 import com.tonghang.web.label.pojo.Label;
+import com.tonghang.web.location.service.LocationService;
 import com.tonghang.web.statistics.service.StatisticsService;
 import com.tonghang.web.topic.dao.TopicDao;
 import com.tonghang.web.topic.pojo.Topic;
@@ -50,7 +49,8 @@ public class UserService {
 	private FriendDao friendDao;
 	@Resource(name="statisticsService")
 	private StatisticsService statisticsService;
-	
+	@Resource(name="locationService")
+	private LocationService locationService;
 	@Resource(name="userUtil")
 	private UserUtil userUtil;
 	
@@ -182,13 +182,13 @@ public class UserService {
 	 * @throws SearchNoResultException 
 	 * 
 	 * 2015-8-11日新加入排序功能，详情请见SortUtil
+	 * 2015-8-27日新加入 在标签排序基础上，按照距离排序功能
 	 */
-	public Map<String, Object> recommend(String client_id, int page) throws SearchNoResultException {
+	public Map<String, Object> recommend(String client_id,boolean byDistance, int page) throws SearchNoResultException {
 		List<Map<String,Object>> sortlist = new ArrayList<Map<String,Object>>();
 		List<User> users = new ArrayList<User>();
 		Set<User> userss = new HashSet<User>();
 		List<String> label_names = new ArrayList<String>();
-		System.out.println("recommend的当前页数："+page);
 		User user = userDao.findUserById(client_id);
 		List<Label> labels = labelDao.findLabelByUser(user);
 		for(Label label : labels){
@@ -205,7 +205,7 @@ public class UserService {
 			throw new SearchNoResultException("首页推荐没有结果");
 		else if(userss.size()==0&&page>1)
 			throw new SearchNoResultException("搜索不到更多了");
-		return userUtil.usersToMapSortedConvertor(users,user);
+		return byDistance?userUtil.usersToMapSortedWithDistanceConvertor(users, user):userUtil.usersToMapSortedConvertor(users,user);
 	}
 
 	/**
@@ -217,7 +217,7 @@ public class UserService {
 	 * @throws SearchNoResultException
 	 * 标签搜索是模糊搜索，当搜索不到时，提示前台搜索不到更多，但是第一次搜索不到则提示没有搜索结果。
 	 */
-	public Map<String, Object> searchLabel(String client_id,String label_name, int page) throws SearchNoResultException {
+	public Map<String, Object> searchLabel(String client_id,String label_name, boolean byDistance,int page) throws SearchNoResultException {
 		// TODO Auto-generated method stub
 		System.out.println("searchLabel  page:"+page);
 		List<Label> labels = labelDao.findLabelByName(label_name);
@@ -234,9 +234,9 @@ public class UserService {
 			throw new SearchNoResultException("未搜索到您想搜索的内容");
 		else if(userss.size()==0&&page>1)
 			throw new SearchNoResultException("搜索不到更多了");
-		return userUtil.usersToMapConvertor(users,client_id);
+		return byDistance?userUtil.usersToMapSortByDistanceConvertor(users, client_id):userUtil.usersToMapConvertor(users,client_id);
 	}
-
+	
 	/**
 	 * 按昵称搜索用户
 	 * @param client_id
@@ -246,14 +246,14 @@ public class UserService {
 	 * @throws SearchNoResultException
 	 * 昵称模糊搜索，当搜索不到时，提示前台搜索不到更多，但是第一次搜索不到则提示没有搜索结果。
 	 */
-	public Map<String, Object> searchNick(String client_id,String username, int page) throws SearchNoResultException {
+	public Map<String, Object> searchNick(String client_id,String username,boolean byDistance, int page) throws SearchNoResultException {
 		// TODO Auto-generated method stub
 		List<User> users = userDao.findUserByUsername(username, page);
 		if(users.size()==0&&page==0)
 			throw new SearchNoResultException("未搜索到您想搜索的内容");
 		else if(users.size()==0&&page>1)
 			throw new SearchNoResultException("搜索不到更多了");
-		return userUtil.usersToMapConvertor(users,client_id);
+		return byDistance?userUtil.usersToMapSortByDistanceConvertor(users, client_id):userUtil.usersToMapConvertor(users,client_id);
 	}
 
 	/**
@@ -392,6 +392,13 @@ public class UserService {
 		return result;
 	}
 
+	/***
+	 * 业务功能：查看某用户的话题
+	 * @param client_id
+	 * @param page
+	 * @return
+	 * @throws SearchNoResultException
+	 */
 	public Map<String, Object> userTopic(String client_id, int page) throws SearchNoResultException {
 		// TODO Auto-generated method stub
 		List<Topic> topics = topicDao.findTopicByUserId(client_id, page);
@@ -407,23 +414,45 @@ public class UserService {
 	public User findUserById(String client_id){
 		return userDao.findUserById(client_id);
 	}
-	
+	/**
+	 * 2015-08-26日新增
+	 * 
+	 * 业务功能：新用户推荐给老用户
+	 * @param client_id
+	 * @return
+	 * @throws SearchNoResultException
+	 * 
+	 * notice:逐个推送可能会有问题，最好一次推荐一群人而不是一群人一个个推
+	 */
 	public Map<String,Object> newUserRecommendation(String client_id) throws SearchNoResultException{
 		User newuser = findUserById(client_id);
 		Map<String,Object>  result = new HashMap<String, Object>();
 		result.put("success", CommonMapUtil.baseMsgToMapConvertor());
 		int index = 1;
 		while(true){
-			Map<String,Object> olders = recommend(client_id, index);
+			Map<String,Object> olders = recommend(client_id,false, index);
 			Map<String,Object> oldersmap = ((Map<String,Object>)olders.get("success"));
 			if(!oldersmap.get("code").equals("200"))
 				break;
 			List<Map<String,Object>> olderlist = (List<Map<String, Object>>) oldersmap.get("users");
+			List<String> client_ids = new ArrayList<String>();
 			for(Map<String,Object> older:olderlist){
-				JPushUtil.push((String)older.get("client_id"), client_id, newuser.getUsername(), Constant.RECOMMEND_NEWBE,Constant.NEWBE_MSG);
+				client_ids.add((String)older.get("client_id"));
 			}
+			JPushUtil.pushList(client_ids, client_id, newuser.getUsername(),Constant.RECOMMEND_NEWBE,newuser.getUsername()+Constant.NEWBE_MSG);
 			index++;
 		}
 		return result;
+	}
+	/**
+	 * 2015-08-27新增
+	 * 业务功能：用户新增地理位置信息
+	 * @param client_id		用户client_id
+	 * @param x_point		纬度
+	 * @param y_point		经度
+	 */
+	public void saveUsersLocation(String client_id,double x_point,double y_point){
+		User user = findUserById(client_id);
+		locationService.saveLocation(user, x_point, y_point);
 	}
 }

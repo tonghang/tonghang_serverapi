@@ -147,6 +147,7 @@ public class HuanXinUtil {
 		parts.put("public", true);
 		parts.put("maxusers", 100);
 		parts.put("approval", true);
+		parts.put("allowinvites", true);
 		parts.put("owner", owner);
 		HttpEntity<Map<String,Object>> requestEntity=
 				new HttpEntity<Map<String,Object>>(parts,header);

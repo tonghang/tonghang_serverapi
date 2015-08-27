@@ -22,11 +22,13 @@ public class Constant extends HuanXinUtil{
 	public static final String NEWBE_MSG = "是和您行业相近的新用户";
 	public static final String ISOLATE_MSG = "您已被管理员封号，详情请咨询客服tonghangtinghang@126.com";
 	public static final String DEISOLATE_MSG = "您已被管理员解封，欢迎您再次使用";
-	
+	public static final String DELETE_TOPIC_MSG = "该话题已被房主解散";
 	public static final String PICTURE_SERVER = "http://114.215.143.83:8080/tonghang-serverapi";
 	public static final String HUANXIN_URL = "http://a1.easemob.com/tonghang/tonghang/";
 	public static final String IMAGE_PATH = "/images/";
 	public static final String IMAGE_NAME = "sign.jpg";
+	public static final String ADV_NAME = "advertise_";
+	public static final String ADV_PATH = "/resources/";
 	
 	public static String JPushBasic="ZWI0ZTc5YzRhYjE4MmQ3MjVlYzJmZjE1OmVkMzIxNjdhODY0MWFiMWVlODY1OGIzYQ==";
 	public static final String CLIENT_ID = "YXA6zpmeoHX8EeS5LFOLSMeZrA";
@@ -61,4 +63,5 @@ public class Constant extends HuanXinUtil{
 	public static final String RECOMMEND_NEWBE = "3";
 	public static final String ISOLATE = "4";
 	public static final String DEISOLATE = "5";
+	public static final String DELETE_TOPIC = "6";
 }

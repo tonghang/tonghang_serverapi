@@ -69,12 +69,11 @@
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 		<property name="maxUploadSize" value="-1"/>
 		<property name="defaultEncoding" value="utf-8"/>
-	</bean> 
-	<mvc:interceptors>  
-	  <mvc:interceptor>  
-	   <mvc:mapping path="/user/*" /> 
-	   <mvc:mapping path="/topic/*" /> 
-	   <bean class="com.tonghang.web.statistics.interceptor.StatisticsInterceptor" />  
-	  </mvc:interceptor>  
-	 </mvc:interceptors>
+	</bean> <!--  
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/user/*"/>
+			<bean class="com.tonghang.web.statistics.interceptor.StatisticsInterceptor" />
+			</mvc:interceptor>
+	</mvc:interceptors>-->
 </beans>

@@ -12,6 +12,7 @@ import com.tonghang.web.common.dao.SystemDao;
 import com.tonghang.web.common.pojo.FeedBack;
 import com.tonghang.web.common.pojo.SystemConfig;
 import com.tonghang.web.common.util.CommonMapUtil;
+import com.tonghang.web.common.util.Constant;
 import com.tonghang.web.common.util.TimeUtil;
 import com.tonghang.web.user.dao.UserDao;
 import com.tonghang.web.user.pojo.User;
@@ -50,6 +51,8 @@ public class SystemService {
 	 * can_register_user：是否能注册
 	 * can_login：是否能登陆
 	 * can_upgrade_silently：是否是静默升级
+	 * 
+	 * notice:记得图片IP地址要改成远端服务器
 	 */
 	public Map<String,Object> getSystemConfig(){
 		Map<String,Object> result = CommonMapUtil.baseMsgToMapConvertor();
@@ -60,6 +63,10 @@ public class SystemService {
 		config.put("can_register_user", system.getCan_regist()==1?true:false);
 		config.put("can_login", system.getCan_login()==1?true:false);
 		config.put("can_upgrade_silently", system.getCan_upgrade_silence()==1?true:false);
+		config.put("use_adv", system.getUse_adv()==1?true:false);
+		config.put("third_adv", system.getThird_adv()==1?true:false);
+		config.put("self_adv_url", system.getSelf_adv_url());
+		config.put("self_img", "http://192.168.23.1:8080/tonghang"+Constant.ADV_PATH+Constant.ADV_NAME+ system.getSelf_adv_url()+".jpg");
 		sysmsg.put("system", config);
 		result.put("success", sysmsg);
 		return result;

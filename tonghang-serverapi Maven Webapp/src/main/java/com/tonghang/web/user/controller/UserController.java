@@ -27,6 +27,7 @@ import com.tonghang.web.common.exception.LoginException;
 import com.tonghang.web.common.exception.NickNameExistException;
 import com.tonghang.web.common.exception.SearchNoResultException;
 import com.tonghang.web.common.exception.UpdateUserException;
+import com.tonghang.web.common.util.CommonMapUtil;
 import com.tonghang.web.common.util.RequestUtil;
 import com.tonghang.web.label.pojo.Label;
 import com.tonghang.web.user.dao.impl.UserDaoImpl;
@@ -115,47 +116,10 @@ public class UserController extends BaseController{
 		user.setStatus("1");
 		return new ResponseEntity<Map<String,Object>>(userService.registUser(user), HttpStatus.OK);
 	}
-//	/**
-//	 * 业务功能：用户注册必要信息(调试通过)
-//	 * @param mapstr 前端的JSON数据，全部包括在mapstr中(username,password,email,labels)
-//	 * @return user(Map)[ labels(List) email (String) image(String) 
-//	 * 				sex(String) phone(String) city(String) username(String)
-//	 * 				client_id(String) created_at(Date) birth(Date)]
-//	 * @throws JsonParseException
-//	 * @throws JsonMappingException
-//	 * @throws IOException
-//	 * 1.jackson类库ObjectMapper类  readVlaue()方法 参数一为json格式的字符串，转换结果的类型
-//	 * 新建user后设置user的状态为在线(user.setStatus("1")),设置账号状态为正常(user.setIsonline("0")),
-//	 * 并把请求参数全部设置到user对象中。
-//	 * 2.regist()方法会检查新的用户所包含的标签信息在数据库中是否存在，若存在则直接插入新的用户；
-//	 * 反之则先插入新的标签，然后插入新的用户。返回值包装了新user的相关信息，并由ResponseEntity包装成JSON返回给前台
-//	 * 3.所有返回用户信息的地方都会返回是否是好友关系
-//	 * @throws EmailExistException 
-//	 * @throws NickNameExistException 
-//	 */
-//	@RequestMapping(value = "/regist")
-//	public ResponseEntity<Map<String,Object>> registUser(@RequestParam String mapstr) throws JsonParseException, JsonMappingException, IOException, EmailExistException, NickNameExistException {
-////		AccountBean acc = objectMapper.readValue(json, AccountBean.class);
-//		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
-//		User user = new User();
-//		String username = (String)map.get("username");
-//		user.setUsername(username);
-//		user.setPassword((String)map.get("password"));
-//		user.setEmail((String)map.get("email"));
-//		user.setIsonline("0");
-//		user.setStatus("1");
-//		Set<Label> set = new HashSet<Label>();
-//		for(String s : (List<String>)map.get("labels")){
-//			System.out.println("标签名:"+s);
-//			Label label = new Label();
-//			label.setLabel_name(s);
-//			set.add(label);
-//		}
-//		user.setLabellist(set);
-//		return new ResponseEntity<Map<String,Object>>(userService.registUser(user), HttpStatus.OK);
-//	}
 	
 	/**
+	 * 2015-08-28新增按距离推荐,新增字段 byDistance,是否需要按照距离排序
+	 * 
 	 * 业务功能: 用户首页推荐(调试通过)
 	 * @param mapstr 前端的JSON数据，全部包括在mapstr中(client_id,pageindex)
 	 * @return user(Map)[ labels(List) email (String) image(String) 
@@ -170,15 +134,23 @@ public class UserController extends BaseController{
 	 * 3.返回值为列表的请求全部需要分页，客户端需要传一个pageindex表示当前页数
 	 * 4.所有返回用户信息的地方都会返回是否是好友关系
 	 * @throws SearchNoResultException 
+	 * 
+	 * 
 	 */
 	@RequestMapping(value = "/recommend")
 	public ResponseEntity<Map<String,Object>> recommend(@RequestParam String mapstr) 
 								throws JsonParseException, JsonMappingException, IOException, SearchNoResultException {
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
-		return new ResponseEntity<Map<String,Object>>(userService.recommend((String)map.get("client_id"),(Integer)map.get("pageindex")), HttpStatus.OK);
+		String client_id = (String)map.get("client_id");
+		boolean byDistance = false;
+		if(map.get("byDistance")!=null)
+			byDistance = (Boolean)map.get("byDistance");
+		return new ResponseEntity<Map<String,Object>>(userService.recommend(client_id,byDistance,(Integer)map.get("pageindex")), HttpStatus.OK);
 	}
 
 	/**
+	 * 2015-08-28新增按距离推荐,新增字段 byDistance,是否需要按照距离排序
+	 * 
 	 * 业务功能: 通过标签查询用户(调试通过)
 	 * @param mapstr 前端的JSON数据，全部包括在mapstr中
 	 * @return user(List<Map>)[ labels(List) email (String) image(String) 
@@ -193,10 +165,14 @@ public class UserController extends BaseController{
 	@RequestMapping(value = "/search/label")
 	public ResponseEntity<Map<String,Object>> searchLabel(@RequestParam String mapstr) throws Exception {
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
-		return new ResponseEntity<Map<String,Object>>(userService.searchLabel((String)map.get("client_id"),(String)map.get("label_name"),(Integer)map.get("pageindex")), HttpStatus.OK);
+		String client_id = (String)map.get("client_id");
+		boolean byDistance = (Boolean)map.get("byDistance");
+		return new ResponseEntity<Map<String,Object>>(userService.searchLabel(client_id,(String)map.get("label_name"),byDistance,(Integer)map.get("pageindex")), HttpStatus.OK);
 	}
 	
 	/**
+	 * 2015-08-28新增按距离推荐,新增字段 byDistance,是否需要按照距离排序
+	 * 
 	 * 业务功能：通过昵称查询用户(调试通过)
 	 * @param mapstr 前端的JSON数据，全部包括在mapstr中(client_id,username)
 	 * @return user(List<Map>)[ labels(List) email (String) image(String) 
@@ -215,8 +191,9 @@ public class UserController extends BaseController{
 	@RequestMapping(value = "search/nick")
 	public ResponseEntity<Map<String,Object>> searchNick(@RequestParam String mapstr) throws JsonParseException, JsonMappingException, IOException, SearchNoResultException {
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
-		System.out.println((String)map.get("username"));
-		return new ResponseEntity<Map<String,Object>>(userService.searchNick((String)map.get("client_id"),(String)map.get("username"),(Integer)map.get("pageindex")), HttpStatus.OK);
+		String client_id = (String)map.get("client_id");
+		boolean byDistance = (Boolean)map.get("byDistance");
+		return new ResponseEntity<Map<String,Object>>(userService.searchNick(client_id,(String)map.get("username"),byDistance,(Integer)map.get("pageindex")), HttpStatus.OK);
 	}
 	
 	/**
@@ -232,7 +209,6 @@ public class UserController extends BaseController{
 	 */
 	@RequestMapping(value = "/{obj_id}")
 	public ResponseEntity<Map<String,Object>> userMessage(@PathVariable String obj_id,@RequestParam String client_id) {
-		System.out.println("userMessage:"+obj_id);
 		return new ResponseEntity<Map<String,Object>>(userService.userMessage(obj_id,client_id), HttpStatus.OK);
 	}
 	
@@ -322,10 +298,56 @@ public class UserController extends BaseController{
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
 		return new ResponseEntity<Map<String,Object>>(userService.userTopic((String)map.get("client_id"),(Integer)map.get("pageindex")), HttpStatus.OK);
 	}
-	
+	/**
+	 * 2015-08-27新增
+	 * 
+	 * 业务功能：新注册用户向老用户发送推送
+	 * @param client_id
+	 * @return
+	 * @throws SearchNoResultException
+	 * 
+	 * notice:该方法内部可能面临重构，推荐方法或许需要重设
+	 */
 	@RequestMapping(value="{client_id}/push")
 	public ResponseEntity<Map<String,Object>> pushNewuserToOlder(@PathVariable String client_id) throws SearchNoResultException{
 		return new ResponseEntity<Map<String,Object>>(userService.newUserRecommendation(client_id), HttpStatus.OK);
+	}
+	
+	/**
+	 * 2015-08-27新增
+	 * 业务功能：首页推荐按照行业和距离
+	 * @param mapstr
+	 * @return
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 * @throws SearchNoResultException
+	 */
+	@RequestMapping(value="/recommend/distance")
+	public ResponseEntity<Map<String,Object>> recommendUserByDistance(@RequestParam String mapstr) throws JsonParseException, JsonMappingException, IOException, SearchNoResultException{
+		Map map = new ObjectMapper().readValue(mapstr, HashMap.class); 
+		String client_id = (String)map.get("client_id");
+		double x_point = (Double)map.get("x_point");
+		double y_point = (Double)map.get("y_point");
+		userService.saveUsersLocation(client_id, x_point, y_point);
+		return new ResponseEntity<Map<String,Object>>(userService.recommend(client_id,true,(Integer)map.get("pageindex")), HttpStatus.OK);
+	}
+	/**
+	 * 
+	 * @return
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonParseException 
+	 */
+	@RequestMapping(value="distance/{client_id}")
+	public ResponseEntity<Map<String,Object>> updateLocation(@PathVariable String client_id,@RequestParam String mapstr) throws JsonParseException, JsonMappingException, IOException{
+		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
+		Map<String,Object> result = new HashMap<String, Object>();
+		result.put("success", CommonMapUtil.baseMsgToMapConvertor());
+		double x_point = (Double)map.get("x_point");
+		double y_point = (Double)map.get("y_point");
+		userService.saveUsersLocation(client_id, x_point, y_point);
+		return new ResponseEntity<Map<String,Object>>(result,HttpStatus.OK);
 	}
 	
 }

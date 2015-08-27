@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.annotation.Resource;
 
@@ -14,6 +16,7 @@ import com.tonghang.web.common.exception.SearchNoResultException;
 import com.tonghang.web.common.util.CommonMapUtil;
 import com.tonghang.web.common.util.Constant;
 import com.tonghang.web.common.util.HuanXinUtil;
+import com.tonghang.web.common.util.JPushUtil;
 import com.tonghang.web.label.dao.LabelDao;
 import com.tonghang.web.label.pojo.Label;
 import com.tonghang.web.topic.dao.TopicDao;
@@ -209,8 +212,17 @@ public class TopicService {
 	public Map<String,Object> deleteTopic(String huanxin_group_id){
 		Map<String,Object> result = new HashMap<String, Object>();
 		Map<String,Object> topicmap = CommonMapUtil.baseMsgToMapConvertor();
-		Topic topic = topicDao.findTopicById(huanxin_group_id);
+		final Topic topic = topicDao.findTopicById(huanxin_group_id);
 		HuanXinUtil.deleteTopic(huanxin_group_id);
+		for(final User user:topic.getUsers()){
+			new Timer().schedule(new TimerTask() {
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					JPushUtil.push(user.getClient_id(), topic.getUser().getClient_id(),topic.getUser().getUsername() , Constant.DELETE_TOPIC, Constant.DELETE_TOPIC_MSG);
+				}
+			}, 1000*1);
+		}
 		topicDao.delete(topic);
 		result.put("success", topicmap);
 		return result;

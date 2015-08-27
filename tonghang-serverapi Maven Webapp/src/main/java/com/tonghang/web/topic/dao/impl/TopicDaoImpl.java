@@ -89,11 +89,9 @@ public class TopicDaoImpl implements TopicDao{
 	public List<Topic> findTopicByUserId(String client_id,int nowpage) {
 		// TODO Auto-generated method stub
 		Session session = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.COMMIT);
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}
-		session.clear();
 		List<Topic> topics = (List<Topic>) session.createQuery("from Topic as topic where topic.user.client_id = :client_id")
 												.setParameter("client_id", client_id).setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
 		session.getTransaction().commit();
@@ -145,12 +143,9 @@ public class TopicDaoImpl implements TopicDao{
 	public Topic findTopicById(String id) {
 		// TODO Auto-generated method stub
 		Session session = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.COMMIT);
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}
-		session.flush(); 
-		session.clear();
 		Topic topic = (Topic) session.get(Topic.class, id);
 		session.getTransaction().commit();
 		session.close();

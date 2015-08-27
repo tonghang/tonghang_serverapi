@@ -35,7 +35,7 @@ public class BlockService {
 		HuanXinUtil.blockUser(my_id, blocker_id);
 		HuanXinUtil.blockUser(blocker_id,my_id);
 		userDao.addBlocker(me, blocker);
-		userDao.addBlocker(blocker, me);
+//		userDao.addBlocker(blocker, me);
 		return result ;
 	}
 	/**
@@ -51,7 +51,7 @@ public class BlockService {
 		HuanXinUtil.deblockUser(my_id, blocker_id);
 		HuanXinUtil.deblockUser(blocker_id, my_id);
 		userDao.deleteBlock(me, blocker);
-		userDao.deleteBlock(blocker, me);
+//		userDao.deleteBlock(blocker, me);
 		return result ;
 	}
 	

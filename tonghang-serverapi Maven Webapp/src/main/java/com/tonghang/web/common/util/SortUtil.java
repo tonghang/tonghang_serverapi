@@ -1,6 +1,8 @@
 package com.tonghang.web.common.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,11 +29,10 @@ public class SortUtil{
 		for(Map<String,Object> map:list){
 			List<String> labels = (List<String>)map.get("labels");
 			int nums = howManySameLabel(objlabels, labels);
-			map.put("samelabel",nums);
-			System.out.println("用户"+map.get("username")+"和我一样的标签有"+nums+"个");
+			map.put("sortnum",nums);
 			result.add(map);
 		}
-		return sortNumber(result);
+		return sortInteger(result);
 	}
 	/**
 	 * 数一下当前用户的标签和用户的标签有多少一样的
@@ -63,11 +64,12 @@ public class SortUtil{
 	}
 	
 	/**
-	 * Map中存的是用户数据还有一个samelabel ，samelabel表示相同标签的数量，根据这个数量为用户排序。
+	 * Map中存的是用户数据还有一个num ，num是排序准则，根据这个数量为用户排序。
 	 * @param list
 	 * @return
+	 * notice:排序量的类型是int的
 	 */
-	private static List<Map<String,Object>> sortNumber(List<Map<String,Object>> list){
+	private static List<Map<String,Object>> sortInteger(List<Map<String,Object>> list){
 		int index = 0;
 		int max = 0;
 		Map<String,Object> temp = new HashMap<String, Object>();
@@ -75,7 +77,7 @@ public class SortUtil{
 			for(int j=0;j<list.size()-i-1;j++){
 				Map<String,Object> pre = (Map<String, Object>) list.get(j);
 				Map<String,Object> next = (Map<String, Object>) list.get(j+1);
-				if((Integer)pre.get("samelabel")<(Integer)next.get("samelabel")){
+				if((Integer)pre.get("sortnum")<(Integer)next.get("sortnum")){
 					temp = pre;
 					list.set(j, next);
 					list.set(j+1,pre);
@@ -83,7 +85,40 @@ public class SortUtil{
 			}
 		}
 		return list;
-		
+	}
+	/**
+	 * Map中存的是用户数据还有一个num ，num是排序准则，根据这个数量为用户排序。
+	 * @param list
+	 * @return
+	 * notice:排序量的类型是double的,用来为距离排序.排序完
+	 */
+	private static List<Map<String,Object>> sortDouoble(List<Map<String,Object>> list){
+		int index = 0;
+		int max = 0;
+		System.out.println("按距离排序  "+list.size());
+		Map<String,Object> temp = new HashMap<String, Object>();
+		for(int i=0;i<list.size();i++){
+			for(int j=0;j<list.size()-i-1;j++){
+				Map<String,Object> pre = (Map<String, Object>) list.get(j);
+				Map<String,Object> next = (Map<String, Object>) list.get(j+1);
+				if((Double)pre.get("distance")>(Double)next.get("distance")){
+					temp = pre;
+					list.set(j, next);
+					list.set(j+1,pre);
+				}
+			}
+		}
+//		Collections.reverse(list);
+		System.out.println("排完序："+list.size());
+		return list;
+	}
+	/**
+	 * 业务功能：根据每个用户距离使用者的距离进行排序
+	 * @param list
+	 * @return
+	 */
+	public static List<Map<String,Object>> sortByDistance(List<Map<String,Object>> list){
+		return sortDouoble(list);
 	}
 
 }

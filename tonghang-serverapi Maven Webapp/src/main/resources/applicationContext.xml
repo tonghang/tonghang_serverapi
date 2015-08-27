@@ -64,7 +64,7 @@
    <bean id="persistenceExceptionTranslationPostProcessor" 
        class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
     <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
-
+	<aop:aspectj-autoproxy/>
  <!--   
     <bean id="transactionManager"
         class="org.springframework.orm.hibernate4.HibernateTransactionManager">

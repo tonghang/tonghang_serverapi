@@ -11,7 +11,7 @@ public class CommonMapUtil {
 		result.put("sys_time", TimeUtil.getFormatString(new Date()));
 		result.put("pic_server", Constant.PICTURE_SERVER);
 		System.out.println("Constant.PICTURE_SERVER:"+Constant.PICTURE_SERVER);
-		result.put("code", 200);
+		result.put("code", "200");
 		result.put("message", "server normal");
 		return result;
 	}

@@ -54,8 +54,11 @@ public class UserDaoImpl implements UserDao {
 //		"select distinct user from User as user left join user.labellist as label where upper('label_name') = upper(:label_name) order by user.client_id"
 		//SELECT * from users as u ,users_labels as ul where u.client_id = ul.client_id and upper(ul.label_name) = upper(:label_name)
 		//select distinct user from User as user left join user.labellist as label where lower(label.label_name) like lower(:label_name) order by user.created_at
-		Query query = session.createQuery("select distinct user from User as user left join user.labellist as label where lower(label.label_name) like concat('%',lower(:label_name),'%') and (user.birth is not null and user.birth != '') and (user.sex is not null and user.sex != '') order by user.created_at");
-		List<User> user = (List<User>) query.setParameter("label_name", label_name).setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
+		Query query = session.createQuery("select distinct user from User as user left join user.labellist as " +
+				"label where lower(label.label_name) like concat('%',lower(:label_name),'%') " +
+				"and (user.birth is not null and user.birth != '') and (user.sex is not null and user.sex != '') order by user.created_at");
+		List<User> user = (List<User>) query.setParameter("label_name", label_name)
+				.setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
 		System.out.println(user);
 		System.out.println(">>>>>>>>>"+query.getQueryString());
 		session.getTransaction().commit();

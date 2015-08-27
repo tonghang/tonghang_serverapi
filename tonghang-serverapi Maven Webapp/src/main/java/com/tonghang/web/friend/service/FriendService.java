@@ -150,9 +150,7 @@ public class FriendService {
 	public boolean isInvited(String inviter_id, String invitee_id) {
 		// TODO Auto-generated method stub
 		List<Invitation> invitations = friendDao.getInvitationByUserId(invitee_id);
-		System.out.println("我的ID"+invitee_id);
 		for(Invitation invitation:invitations){
-			System.out.println("有没有发好友请求呢 ： "+invitation.getInviter());
 			if(inviter_id.equals(invitation.getInviter().getClient_id()))
 				return true;
 		}

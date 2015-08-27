@@ -56,15 +56,4 @@ public class SystemController extends BaseController{
 		return new ResponseEntity<Map<String,Object>>(systemService.getSystemConfig(),HttpStatus.OK);
 	}
 	
-	@RequestMapping("active_user")
-	public ResponseEntity<Map<String,Object>> addActiveUser(@RequestParam String client_id){
-		User user = userService.findUserById(client_id);
-		ActiveUser auser = new ActiveUser();
-		auser.setUser(user);
-		auser.setDate(new Date());
-		if(!statisticsService.isActivedToday(client_id)){
-			statisticsService.addActiveUser(auser);				
-		}
-		return null;
-	}
 }
