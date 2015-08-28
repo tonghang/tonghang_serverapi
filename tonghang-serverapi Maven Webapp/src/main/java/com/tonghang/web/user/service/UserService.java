@@ -3,6 +3,7 @@ package com.tonghang.web.user.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,7 +73,8 @@ public class UserService {
 //				result.put("error", userUtil.messageToMapConvertor(0, "登录失败，用户被封号！"));
 				throw new LoginException("登录失败，用户被封号！");
 			}else{
-				if(user.getPassword().equals(password)){
+				//新需求需要密码MD5加密，此处用来兼容老用户
+				if(user.getPassword().equals(password)||user.getPassword().equals(SecurityUtil.getMD5(password))){
 					Map<String,Object> usermap = userUtil.userToMapConvertor(user,false,user.getClient_id());
 					usermap.putAll(CommonMapUtil.baseMsgToMapConvertor());
 					result.put("success", usermap);
@@ -93,18 +95,20 @@ public class UserService {
 	 * @return
 	 * @throws EmailExistException 
 	 * @throws LoginException 
+	 * 
+	 * notice: 2015-08-28 忘记密码的随机密码进行了MD5加密
 	 */
 	public Map<String,Object> forgetPassword(String email) throws LoginException{
 		Map<String,Object> result = new HashMap<String, Object>();
 		User user = userDao.findUserByEmail(email);
-		System.out.println("忘记密码的邮箱号是："+email);
 		if(user==null){
 			throw new LoginException("发送失败，该邮箱不存在！");
 		}else{
 			user.setPassword(StringUtil.randomCode(8));
 //调修改密码方法
 			EmailUtil.sendEmail(user);
-			HuanXinUtil.changePassword(user.getPassword(), user.getClient_id());
+			user.setPassword(SecurityUtil.getMD5(user.getPassword()));
+			HuanXinUtil.changePassword(SecurityUtil.getMD5(user.getPassword()), user.getClient_id());
 			userDao.saveOrUpdate(user);
 			result.put("success", userUtil.messageToMapConvertor(200, "密码重置请求成功!"));
 		}
@@ -146,6 +150,37 @@ public class UserService {
 		}
 		return result;
 	}
+	/**
+	 *  旧的注册接口，因为注册业务换成三步注册，为了兼容0.8app留下该接口
+	 * @param user
+	 * @return
+	 * @throws EmailExistException
+	 * @throws NickNameExistException
+	 */
+	public Map<String,Object> oldRegistUser(User user) throws EmailExistException, NickNameExistException{
+		Map<String,Object> result = new HashMap<String, Object>();
+		//去掉标签部分
+		Iterator<Label> it = user.getLabellist().iterator();
+		while(it.hasNext()){
+			Label label = it.next();
+			if(labelDao.findLabelById(label.getLabel_name())==null)
+				labelDao.save(label);
+		}
+		if(userDao.findUserByEmail(user.getEmail())!=null){
+			throw new EmailExistException("注册失败！该邮箱已被注册");
+		}else/* if(userDao.findUserByNickName(user.getUsername())!=null){
+			throw new NickNameExistException("注册失败！该昵称已经被注册");
+		}else*/{
+			user.setClient_id(SecurityUtil.getUUID());
+			userDao.save(user);
+			HuanXinUtil.registUser(user);
+			Map<String,Object> usermap = userUtil.userToMapConvertor(user,false,user.getClient_id());
+			usermap.putAll(CommonMapUtil.baseMsgToMapConvertor());
+			result.put("success", usermap);
+		}
+		return result;
+	}
+	
 	/**
 	 * 查看用户详细信息
 	 * @param client_id	前台请求中的参数	表示用户的唯一标识	client_id
@@ -353,7 +388,7 @@ public class UserService {
 		User user = new User();
 		user.setClient_id(client_id);
 		user = userDao.findUserById(client_id);
-		if(user.getPassword().equals(old_passwd)){
+		if(user.getPassword().equals(old_passwd)||user.getPassword().equals(SecurityUtil.getMD5(old_passwd))){
 			user.setPassword(new_passwd);
 			HuanXinUtil.changePassword(user.getPassword(), user.getClient_id());
 			userDao.saveOrUpdate(user);

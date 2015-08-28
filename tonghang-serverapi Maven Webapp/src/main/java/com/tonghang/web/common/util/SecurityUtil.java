@@ -3,13 +3,7 @@ package com.tonghang.web.common.util;
 import java.security.MessageDigest;
 import java.util.UUID;
 
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.tonghang.web.label.pojo.Label;
 
 public class SecurityUtil {
 
@@ -35,7 +29,6 @@ public class SecurityUtil {
             //2 将消息变成byte数组
             ObjectMapper mapper = new ObjectMapper();
             String s = mapper.writeValueAsString(message);
-            System.out.println(s);
 //            MappingJackson2HttpMessageConverter jackson = new MappingJackson2HttpMessageConverter();
             byte[] input = s.getBytes();
             //3 计算后获得字节数组,这就是那128位了

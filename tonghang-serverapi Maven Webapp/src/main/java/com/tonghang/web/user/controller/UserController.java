@@ -29,6 +29,7 @@ import com.tonghang.web.common.exception.SearchNoResultException;
 import com.tonghang.web.common.exception.UpdateUserException;
 import com.tonghang.web.common.util.CommonMapUtil;
 import com.tonghang.web.common.util.RequestUtil;
+import com.tonghang.web.common.util.SecurityUtil;
 import com.tonghang.web.label.pojo.Label;
 import com.tonghang.web.user.dao.impl.UserDaoImpl;
 import com.tonghang.web.user.pojo.User;
@@ -101,8 +102,10 @@ public class UserController extends BaseController{
 	 * 3.所有返回用户信息的地方都会返回是否是好友关系
 	 * @throws EmailExistException 
 	 * @throws NickNameExistException 
+	 * 
+	 * notice:2015-08-28 注册用户的密码用MD
 	 */
-	@RequestMapping(value = "/regist")
+	@RequestMapping(value = "/newregist")
 	public ResponseEntity<Map<String,Object>> registUser(@RequestParam String mapstr) throws JsonParseException, JsonMappingException, IOException, EmailExistException, NickNameExistException {
 //		AccountBean acc = objectMapper.readValue(json, AccountBean.class);
 		System.out.println("开始注册");
@@ -116,7 +119,37 @@ public class UserController extends BaseController{
 		user.setStatus("1");
 		return new ResponseEntity<Map<String,Object>>(userService.registUser(user), HttpStatus.OK);
 	}
-	
+	/**
+	 * 业务功能：  旧的注册接口，因为注册业务换成三步注册，为了兼容0.8app留下该接口
+	 * 旧的通道新加了密码MD5加密
+	 * @param mapstr
+	 * @return
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 * @throws EmailExistException
+	 * @throws NickNameExistException
+	 */
+	@RequestMapping(value = "/regist")
+	public ResponseEntity<Map<String,Object>> oldRegistUser(@RequestParam String mapstr) throws JsonParseException, JsonMappingException, IOException, EmailExistException, NickNameExistException {
+//		AccountBean acc = objectMapper.readValue(json, AccountBean.class);
+		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
+		User user = new User();
+		String username = (String)map.get("username");
+		user.setUsername(username);
+		user.setPassword(SecurityUtil.getMD5((String)map.get("password")));
+		user.setEmail((String)map.get("email"));
+		user.setIsonline("0");
+		user.setStatus("1");
+		Set<Label> set = new HashSet<Label>();
+		for(String s : (List<String>)map.get("labels")){
+			Label label = new Label();
+			label.setLabel_name(s);
+			set.add(label);
+		}
+		user.setLabellist(set);
+		return new ResponseEntity<Map<String,Object>>(userService.oldRegistUser(user), HttpStatus.OK);
+	}
 	/**
 	 * 2015-08-28新增按距离推荐,新增字段 byDistance,是否需要按照距离排序
 	 * 
@@ -166,7 +199,9 @@ public class UserController extends BaseController{
 	public ResponseEntity<Map<String,Object>> searchLabel(@RequestParam String mapstr) throws Exception {
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
 		String client_id = (String)map.get("client_id");
-		boolean byDistance = (Boolean)map.get("byDistance");
+		boolean byDistance = false;
+		if(map.get("byDistance")!=null)
+			byDistance = (Boolean)map.get("byDistance");
 		return new ResponseEntity<Map<String,Object>>(userService.searchLabel(client_id,(String)map.get("label_name"),byDistance,(Integer)map.get("pageindex")), HttpStatus.OK);
 	}
 	
@@ -192,7 +227,9 @@ public class UserController extends BaseController{
 	public ResponseEntity<Map<String,Object>> searchNick(@RequestParam String mapstr) throws JsonParseException, JsonMappingException, IOException, SearchNoResultException {
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
 		String client_id = (String)map.get("client_id");
-		boolean byDistance = (Boolean)map.get("byDistance");
+		boolean byDistance = false;
+		if(map.get("byDistance")!=null)
+			byDistance = (Boolean)map.get("byDistance");
 		return new ResponseEntity<Map<String,Object>>(userService.searchNick(client_id,(String)map.get("username"),byDistance,(Integer)map.get("pageindex")), HttpStatus.OK);
 	}
 	

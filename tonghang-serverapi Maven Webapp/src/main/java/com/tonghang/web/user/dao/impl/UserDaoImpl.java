@@ -59,8 +59,6 @@ public class UserDaoImpl implements UserDao {
 				"and (user.birth is not null and user.birth != '') and (user.sex is not null and user.sex != '') order by user.created_at");
 		List<User> user = (List<User>) query.setParameter("label_name", label_name)
 				.setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
-		System.out.println(user);
-		System.out.println(">>>>>>>>>"+query.getQueryString());
 		session.getTransaction().commit();
 		session.close();
 		return user;
@@ -119,10 +117,8 @@ public class UserDaoImpl implements UserDao {
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}
-		System.out.println("搜索用户条件："+username+" page: "+page);
 		List<User> users = session.createQuery("select distinct user from User as user where lower(username) like concat('%',lower(:username),'%') and (user.birth is not null and user.birth != '') and(user.sex is not null and user.sex != '') order by user.created_at").
 							setParameter("username", username).setFirstResult(Constant.PAGESIZE*(page-1)).setMaxResults(Constant.PAGESIZE).list();
-		System.out.println("模糊匹配结果："+users);
 		session.getTransaction().commit();
 		session.close();
 		return users;

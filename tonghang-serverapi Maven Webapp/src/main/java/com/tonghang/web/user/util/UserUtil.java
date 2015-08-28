@@ -327,7 +327,6 @@ public class UserUtil {
 			if(!is_friend)
 				msg.put("has_invitation", has_invited);
 			else msg.put("has_invitation",!is_friend);
-			System.out.println("usersToMapConvertor: "+has_invited);
 			usersmsg.add(msg);
 		}
 		//排序操作，详细请看 SortUtil 类
