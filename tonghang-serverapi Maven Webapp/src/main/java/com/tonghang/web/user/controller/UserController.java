@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
@@ -60,10 +61,21 @@ public class UserController extends BaseController{
 	 * 2.login()方法返回的map集合包括前端所需要的所有数据，并由ResponseEntity包装成JSON返回给前台
 	 * 3.所有返回用户信息的地方都会返回是否是好友关系
 	 */
-	@RequestMapping(value = "/login")
-	public ResponseEntity<Map<String,Object>> login(@RequestParam String mapstr) throws Exception {		
+	@RequestMapping(value = "/newlogin")
+	@ResponseBody public ResponseEntity<Map<String,Object>> login(@RequestParam String mapstr) throws Exception {		
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
 		return new ResponseEntity<Map<String,Object>>(userService.login((String)map.get("email"),(String)map.get("password")), HttpStatus.OK);
+	}
+	/**
+	 * 业务功能：兼容旧版本APP登录功能
+	 * @param mapstr
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/login")
+	public ResponseEntity<Map<String,Object>> oldLogin(@RequestParam String mapstr) throws Exception {		
+		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
+		return new ResponseEntity<Map<String,Object>>(userService.oldLogin((String)map.get("email"),(String)map.get("password")), HttpStatus.OK);
 	}
 	
 	/**
@@ -87,7 +99,7 @@ public class UserController extends BaseController{
 	
 	/**
 	 * 业务功能：用户注册必要信息(调试通过)
-	 * @param mapstr 前端的JSON数据，全部包括在mapstr中(username,password,email,labels)
+	 * @param mapstr 前端的JSON数据，全部包括在mapstr中(username,password（MD5加密过的）,email,labels)
 	 * @return user(Map)[ labels(List) email (String) image(String) 
 	 * 				sex(String) phone(String) city(String) username(String)
 	 * 				client_id(String) created_at(Date) birth(Date)]
@@ -103,7 +115,7 @@ public class UserController extends BaseController{
 	 * @throws EmailExistException 
 	 * @throws NickNameExistException 
 	 * 
-	 * notice:2015-08-28 注册用户的密码用MD
+	 * notice:2015-08-28 注册用户的密码用MD,客户端传过来的password就是MD5所以后台不必再加密
 	 */
 	@RequestMapping(value = "/newregist")
 	public ResponseEntity<Map<String,Object>> registUser(@RequestParam String mapstr) throws JsonParseException, JsonMappingException, IOException, EmailExistException, NickNameExistException {
@@ -170,7 +182,7 @@ public class UserController extends BaseController{
 	 * 
 	 * 
 	 */
-	@RequestMapping(value = "/recommend")
+	@RequestMapping(value = "recommend")
 	public ResponseEntity<Map<String,Object>> recommend(@RequestParam String mapstr) 
 								throws JsonParseException, JsonMappingException, IOException, SearchNoResultException {
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);

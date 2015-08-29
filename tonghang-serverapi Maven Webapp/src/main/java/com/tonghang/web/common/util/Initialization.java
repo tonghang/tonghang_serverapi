@@ -10,7 +10,7 @@ public class Initialization implements InitializingBean ,ServletContextAware{
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		// TODO Auto-generated method stub
-		System.out.println("Spring inilising");
+		System.out.println("启动Server的时候");
 		HuanXinUtil.getHuangXinServerToken();
 		HuanXinUtil.getTokenPeriodly();
 	}

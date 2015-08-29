@@ -66,23 +66,63 @@ public class UserService {
 		Map<String,Object> result = new HashMap<String, Object>();
 		User user = userDao.findUserByEmail(email);
 		if(user==null){
-//			result.put("error", userUtil.messageToMapConvertor(0, "登录失败，用户不存在！"));
-			throw new LoginException("登录失败，该邮箱不存在！");
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("登录失败，该邮箱不存在！", 510));
+			return result;
 		}else{
-			if(user.getStatus().equals(0)){
-//				result.put("error", userUtil.messageToMapConvertor(0, "登录失败，用户被封号！"));
-				throw new LoginException("登录失败，用户被封号！");
+			if(user.getStatus().equals("0")){
+				result.put("success", CommonMapUtil.baseMsgToMapConvertor("登录失败，用户被封号！", 510));
+				return result;
 			}else{
 				//新需求需要密码MD5加密，此处用来兼容老用户
-				if(user.getPassword().equals(password)||user.getPassword().equals(SecurityUtil.getMD5(password))){
+				if(user.getPassword().equals(SecurityUtil.getMD5(password))){
+					Map<String,Object> usermap = userUtil.userToMapConvertor(user,false,user.getClient_id());
+					usermap.putAll(CommonMapUtil.baseMsgToMapConvertor());
+					result.put("success", usermap);
+					user.setIsonline("1");
+					userDao.saveOrUpdate(user);
+				}else if(user.getPassword().equals(password)){
+					Map<String,Object> usermap = userUtil.userToMapConvertor(user,false,user.getClient_id());
+					usermap.putAll(CommonMapUtil.baseMsgToMapConvertor());
+					result.put("success", usermap);
+					user.setIsonline("1");
+					user.setPassword(SecurityUtil.getMD5(password));
+					HuanXinUtil.changePassword(SecurityUtil.getMD5(password), user.getClient_id());
+					userDao.saveOrUpdate(user);
+				}else{
+					result.put("success", CommonMapUtil.baseMsgToMapConvertor("登录失败，用户名或密码错误！", 510));
+					return result;
+				}
+			}
+		}
+		return result;
+	}
+	/**
+	 * 业务功能:旧版本的APP登录通道
+	 * @param email
+	 * @param password
+	 * @return
+	 * @throws BaseException
+	 */
+	public Map<String,Object> oldLogin(String email,String password) throws BaseException{
+		Map<String,Object> result = new HashMap<String, Object>();
+		User user = userDao.findUserByEmail(email);
+		if(user==null){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("登录失败，该邮箱不存在！", 510));
+			return result;
+		}else{
+			if(user.getStatus().equals(0)){
+				result.put("success", CommonMapUtil.baseMsgToMapConvertor("登录失败，用户被封号！", 510));
+				return result;
+			}else{
+				if(user.getPassword().equals(password)){
 					Map<String,Object> usermap = userUtil.userToMapConvertor(user,false,user.getClient_id());
 					usermap.putAll(CommonMapUtil.baseMsgToMapConvertor());
 					result.put("success", usermap);
 					user.setIsonline("1");
 					userDao.saveOrUpdate(user);
 				}else{
-//					result.put("error", userUtil.messageToMapConvertor(0, "登录失败，密码不正确！"));
-					throw new LoginException("登录失败，用户名或密码错误！");
+					result.put("success", CommonMapUtil.baseMsgToMapConvertor("登录失败，用户名或密码错误！", 510));
+					return result;
 				}
 			}
 		}
@@ -102,7 +142,8 @@ public class UserService {
 		Map<String,Object> result = new HashMap<String, Object>();
 		User user = userDao.findUserByEmail(email);
 		if(user==null){
-			throw new LoginException("发送失败，该邮箱不存在！");
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("发送失败，该邮箱不存在！", 510));
+			return result;
 		}else{
 			user.setPassword(StringUtil.randomCode(8));
 //调修改密码方法
@@ -137,9 +178,11 @@ public class UserService {
 //				labelDao.save(label);
 //		}
 		if(userDao.findUserByEmail(user.getEmail())!=null){
-			throw new EmailExistException("注册失败！该邮箱已被注册");
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("注册失败！该邮箱已被注册", 511));
+			return result;
 		}else if(userDao.findUserByNickName(user.getUsername())!=null){
-			throw new NickNameExistException("注册失败！该昵称已经被注册");
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("注册失败！该昵称已经被注册", 512));
+			return result;
 		}else{
 			user.setClient_id(SecurityUtil.getUUID());
 			userDao.save(user);
@@ -167,7 +210,8 @@ public class UserService {
 				labelDao.save(label);
 		}
 		if(userDao.findUserByEmail(user.getEmail())!=null){
-			throw new EmailExistException("注册失败！该邮箱已被注册");
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("注册失败！该邮箱已被注册", 511));
+			return result;
 		}else/* if(userDao.findUserByNickName(user.getUsername())!=null){
 			throw new NickNameExistException("注册失败！该昵称已经被注册");
 		}else*/{
@@ -188,12 +232,13 @@ public class UserService {
 	 * @throws SearchNoResultException 
 	 */
 	public Map<String,Object> checkUserMessage(String client_id) throws SearchNoResultException{
+		Map<String,Object> result = new HashMap<String, Object>();
 		User user =userDao.findUserById(client_id);
 		if(user==null){
-			throw new SearchNoResultException("未搜索到您想搜索的内容");
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("未搜索到您想搜索的内容", 520));
+			return result;
 		}
 		Map<String,Object> usermap = userUtil.userToMapConvertor(user,client_id);
-		Map<String,Object> result = new HashMap<String, Object>();
 		usermap.putAll(CommonMapUtil.baseMsgToMapConvertor());
 		result.put("success", usermap);
 		return result;
@@ -219,8 +264,9 @@ public class UserService {
 	 * 2015-8-11日新加入排序功能，详情请见SortUtil
 	 * 2015-8-27日新加入 在标签排序基础上，按照距离排序功能
 	 */
-	public Map<String, Object> recommend(String client_id,boolean byDistance, int page) throws SearchNoResultException {
+	public Map<String, Object> recommend(String client_id,boolean byDistance, int page){
 		List<Map<String,Object>> sortlist = new ArrayList<Map<String,Object>>();
+		Map<String,Object> result = new HashMap<String, Object>();
 		List<User> users = new ArrayList<User>();
 		Set<User> userss = new HashSet<User>();
 		List<String> label_names = new ArrayList<String>();
@@ -236,10 +282,15 @@ public class UserService {
 			label_names.add(label.getLabel_name());
 		}
 		users.addAll(userss);
-		if(users.size()==0||userss.size()==0&&page==1)
-			throw new SearchNoResultException("首页推荐没有结果");
-		else if(userss.size()==0&&page>1)
-			throw new SearchNoResultException("搜索不到更多了");
+		if(users.size()==0||userss.size()==0&&page==1){
+//			throw new SearchNoResultException("首页推荐没有结果");
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("首页推荐没有结果", 520));
+			return result;
+		}else if(userss.size()==0&&page>1){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("搜索不到更多了", 520));
+			return result;
+		}
+//			throw new SearchNoResultException("搜索不到更多了");
 		return byDistance?userUtil.usersToMapSortedWithDistanceConvertor(users, user):userUtil.usersToMapSortedConvertor(users,user);
 	}
 
@@ -252,9 +303,9 @@ public class UserService {
 	 * @throws SearchNoResultException
 	 * 标签搜索是模糊搜索，当搜索不到时，提示前台搜索不到更多，但是第一次搜索不到则提示没有搜索结果。
 	 */
-	public Map<String, Object> searchLabel(String client_id,String label_name, boolean byDistance,int page) throws SearchNoResultException {
+	public Map<String, Object> searchLabel(String client_id,String label_name, boolean byDistance,int page){
 		// TODO Auto-generated method stub
-		System.out.println("searchLabel  page:"+page);
+		Map<String,Object> result = new HashMap<String, Object>();
 		List<Label> labels = labelDao.findLabelByName(label_name);
 		Set<User> userss = new HashSet<User>(); 
 		List<User> users = new ArrayList<User>();
@@ -265,10 +316,13 @@ public class UserService {
 		users.addAll(userss);
 		//当page=1时userss.size()为0说明用户一开始就搜不到数据，
 		//page>1时userss.size()为0说明用户刷新了数据，但是没有结果了
-		if(userss.size()==0&&page==0)
-			throw new SearchNoResultException("未搜索到您想搜索的内容");
-		else if(userss.size()==0&&page>1)
-			throw new SearchNoResultException("搜索不到更多了");
+		if(userss.size()==0&&page==0){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("未搜索到您想搜索的内容", 520));
+			return result;
+		}else if(userss.size()==0&&page>1){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("搜索不到更多了", 520));
+			return result;
+		}
 		return byDistance?userUtil.usersToMapSortByDistanceConvertor(users, client_id):userUtil.usersToMapConvertor(users,client_id);
 	}
 	
@@ -281,13 +335,16 @@ public class UserService {
 	 * @throws SearchNoResultException
 	 * 昵称模糊搜索，当搜索不到时，提示前台搜索不到更多，但是第一次搜索不到则提示没有搜索结果。
 	 */
-	public Map<String, Object> searchNick(String client_id,String username,boolean byDistance, int page) throws SearchNoResultException {
+	public Map<String, Object> searchNick(String client_id,String username,boolean byDistance, int page){
 		// TODO Auto-generated method stub
+		Map<String,Object> result = new HashMap<String, Object>();
 		List<User> users = userDao.findUserByUsername(username, page);
-		if(users.size()==0&&page==0)
-			throw new SearchNoResultException("未搜索到您想搜索的内容");
-		else if(users.size()==0&&page>1)
-			throw new SearchNoResultException("搜索不到更多了");
+		if(users.size()==0&&page==0){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("未搜索到您想搜索的内容", 520));
+			return result;
+		}else if(users.size()==0&&page>1){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("搜索不到更多了", 520));
+		}
 		return byDistance?userUtil.usersToMapSortByDistanceConvertor(users, client_id):userUtil.usersToMapConvertor(users,client_id);
 	}
 
@@ -324,15 +381,14 @@ public class UserService {
 	 * notice:修改信息变成一个一个信息进行修改，所以这里逐个判断每个信息是不是空
 	 */
 	public Map<String, Object> update(String client_id, String username,
-			String sex, String birth, String city) throws UpdateUserException, NickNameExistException {
+			String sex, String birth, String city){
 		// TODO Auto-generated method stub
 		Map<String,Object> result = new HashMap<String, Object>();
 		User user = userDao.findUserById(client_id);
 //		User u = userDao.findUserByNickName(username);
-		System.out.println("新注册的用户的client_id:"+user);
-		System.out.println("新注册的用户的client_id:"+client_id);
 		if(user==null){
-			throw new UpdateUserException("更新失败，当前用户不存在");
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("更新失败，当前用户不存在", 513));
+			return result;
 		}
 		if(birth!=null&&!birth.equals(user.getBirth()))
 			user.setBirth(birth);
@@ -341,10 +397,8 @@ public class UserService {
 			user.setProvince(null);
 			user.setCity(null);
 			if(city.contains("-")){
-				System.out.println("传进来的city: "+city);
 				String pr = StringUtil.seperate(city, 0);
 				String ci = StringUtil.seperate(city, 1);
-				System.out.println("解析完，city："+ci+"  province："+pr);
 				if(!ci.equals(user.getCity())&&city!=null)
 					user.setCity(ci);
 				if(!pr.equals(user.getProvince())&&pr!=null)
@@ -357,7 +411,8 @@ public class UserService {
 			user.setSex(sex);
 		if(username!=null&&!username.equals(user.getUsername())){
 			 if(userDao.findUserByNickName(user.getUsername())!=null){
-				throw new NickNameExistException("注册失败！该昵称已经被注册");
+				result.put("success", CommonMapUtil.baseMsgToMapConvertor("该昵称已经被注册!", 512));
+				return result;
 			}else{
 				user.setUsername(username);
 				HuanXinUtil.changeUsername(user.getUsername(),user.getClient_id());				
@@ -367,10 +422,6 @@ public class UserService {
 		Map<String,Object> usermap = userUtil.userToMapConvertor(user,client_id);
 		usermap.putAll(CommonMapUtil.baseMsgToMapConvertor());
 		result.put("success", usermap);
-//		if(u==null){
-//		}else{
-//			throw new NickNameExistException("修改失败！该昵称已存在。");
-//		}
 		return result;
 	}
 	/**
@@ -382,7 +433,7 @@ public class UserService {
 	 * @throws UpdateUserException
 	 * 修改密码操作会给环信发送修改请求，环信密码和自己服务器密码不一致会在发信的时候出问题
 	 */
-	public Map<String, Object> updatePassword(String client_id,String old_passwd, String new_passwd) throws UpdateUserException {
+	public Map<String, Object> updatePassword(String client_id,String old_passwd, String new_passwd){
 		// TODO Auto-generated method stub
 		Map<String,Object> result = new HashMap<String, Object>();
 		User user = new User();
@@ -396,11 +447,17 @@ public class UserService {
 			Map<String,Object> usermap = userUtil.userToMapConvertor(user,client_id);
 			usermap.putAll(CommonMapUtil.baseMsgToMapConvertor());
 			result.put("success", usermap);
-		}else 
-			throw new UpdateUserException("修改失败，原密码不正确");
+		}else {
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("修改失败，原密码不正确", 513));
+		}
 		return result;
 	}
-
+	/**
+	 * 业务功能：修改标签
+	 * @param client_id
+	 * @param list
+	 * @return
+	 */
 	public Map<String, Object> updateLabel(String client_id, List<String> list) {
 		// TODO Auto-generated method stub
 		Map<String,Object> result = new HashMap<String, Object>();
@@ -437,8 +494,11 @@ public class UserService {
 	public Map<String, Object> userTopic(String client_id, int page) throws SearchNoResultException {
 		// TODO Auto-generated method stub
 		List<Topic> topics = topicDao.findTopicByUserId(client_id, page);
-		if(topics==null||topics.size()==0)
-			throw new SearchNoResultException("该用户没有话题");
+		Map<String,Object> result = new HashMap<String, Object>();
+		if(topics==null||topics.size()==0){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("该用户没有话题", 520));
+			return result;
+		}
 		return TopicUtil.topicsToMapConvertor(topics);
 	}
 	/**

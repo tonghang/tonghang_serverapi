@@ -36,6 +36,7 @@ public class HuanXinUtil {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
+				System.out.println("获取一次环信token");
 				getHuangXinServerToken();
 				getTokenPeriodly();
 			}

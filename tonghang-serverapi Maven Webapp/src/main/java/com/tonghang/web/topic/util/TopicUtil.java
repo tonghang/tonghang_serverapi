@@ -42,7 +42,7 @@ public class TopicUtil {
 			topicsmsg.add(msg);
 		}
 		//前台数据需要什么样的格式
-		topicmap.put("etag", SecurityUtil.getMD5(topicsmsg));
+//		topicmap.put("etag", SecurityUtil.getMD5(topicsmsg));
 /*		if(!SecurityUtil.getMD5(topicsmsg).equals(etag)){
 			topicmap.put("topics", topicsmsg);
 		}else{

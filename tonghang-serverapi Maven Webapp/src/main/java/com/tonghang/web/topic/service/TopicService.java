@@ -60,10 +60,14 @@ public class TopicService {
 	 */
 	public Map<String,Object> checkTopicBySubject(String subject/*,String etag*/,int nowpage) throws SearchNoResultException{
 		List<Topic> topics = topicDao.findTopicBySubject(subject, nowpage);
-		if(topics.size()==0&&nowpage==0)
-			throw new SearchNoResultException("未搜索到您想搜索的内容");
-		else if(topics.size()==0&&nowpage>1)
-			throw new SearchNoResultException("搜索不到更多了");
+		Map<String,Object> result = new HashMap<String, Object>();
+		if(topics.size()==0&&nowpage==0){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("未搜索到您想搜索的内容", 520));
+			return result;
+		}else if(topics.size()==0&&nowpage>1){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("搜索不到更多了", 520));
+			return result;
+		}
 		return TopicUtil.topicsToMapConvertor(topics/*,etag*/);
 	}
 	
@@ -76,10 +80,15 @@ public class TopicService {
 	 */
 	public Map<String,Object> checkTopicByLabel(String labelname/*,String etag*/,int nowpage) throws SearchNoResultException{
 		List<Topic> topics = topicDao.findTopicByLabelName(labelname, nowpage);
-		if(topics.size()==0&&nowpage==0)
-			throw new SearchNoResultException("未搜索到您想搜索的内容");
-		else if(topics.size()==0&&nowpage>1)
-			throw new SearchNoResultException("搜索不到更多了");
+		Map<String,Object> result = new HashMap<String, Object>();
+		if(topics.size()==0&&nowpage==0){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("未搜索到您想搜索的内容", 520));
+			return result;
+		}
+		else if(topics.size()==0&&nowpage>1){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("搜索不到更多了", 520));
+			return result;
+		}
 		return TopicUtil.topicsToMapConvertor(topics/*,etag*/);
 	}
 	
@@ -92,12 +101,15 @@ public class TopicService {
 	 */
 	public Map<String,Object> recommendTopics(User user,/*String etag,*/int nowpage) throws SearchNoResultException{
 		List<Label> labels = labelDao.findLabelByUser(user);
+		Map<String,Object> result = new HashMap<String, Object>();
 		List<Topic> topics = new ArrayList<Topic>();
 		for(Label label : labels){
 			topics.addAll(topicDao.findTopicByLabelName(label.getLabel_name(), nowpage));
 		}
-		if(topics==null||topics.size()==0)
-			throw new SearchNoResultException("未搜索到您想搜索的内容");
+		if(topics==null||topics.size()==0){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("未搜索到您想搜索的内容", 520));
+			return result;
+		}
 		return TopicUtil.topicsToMapConvertor(topics/*,etag*/);
 	}
 	
@@ -137,10 +149,14 @@ public class TopicService {
 	 */
 	public Map<String,Object> checkTopicInUser(String client_id/*,String etag*/,int nowpage) throws SearchNoResultException{
 		List<Topic> topics = topicDao.findTopicByUserId(client_id, nowpage);
-		if(topics.size()==0&&nowpage==1)
-			throw new SearchNoResultException("该用户没有话题");
-		else if(topics.size()==0&&nowpage>1)
-			throw new SearchNoResultException("搜索不到更多了");
+		Map<String,Object> result = new HashMap<String, Object>();
+		if(topics.size()==0&&nowpage==1){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("该用户没有话题", 520));
+			return result;
+		}else if(topics.size()==0&&nowpage>1){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("搜索不到更多了", 520));
+			return result;
+		}
 		return TopicUtil.topicsToMapConvertor(topics);
 	}
 	

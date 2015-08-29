@@ -20,7 +20,7 @@ public class BaseController {
 	 * @return
 	 */
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<Map<String,Object>> exception(Exception e){
+	public Map<String,Object> exception(Exception e){
 		Map<String,Object> result = new HashMap<String, Object>();
 		Map<String,Object> map = new HashMap<String, Object>();
 		if(e instanceof BaseException){
@@ -32,7 +32,7 @@ public class BaseController {
 			result.put("message", "server exception");
 			e.printStackTrace();
 		}
-		map.put("success", result);
-		return new ResponseEntity<Map<String,Object>>(map,HttpStatus.OK);
+		map.put("result", result);
+		return map;
 	}
 }

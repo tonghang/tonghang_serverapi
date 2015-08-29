@@ -69,6 +69,7 @@ public class SystemService {
 		config.put("self_img", "http://192.168.23.1:8080/tonghang"+Constant.ADV_PATH+Constant.ADV_NAME+ system.getSelf_adv_url()+".jpg");
 		sysmsg.put("system", config);
 		result.put("success", sysmsg);
+		System.out.println("系统参数详情："+config);
 		return result;
 	}
 	
