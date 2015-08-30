@@ -60,7 +60,6 @@ public class LabelDaoImpl implements LabelDao{
 	public List<Label> findLabelByUser(User user) {
 		// TODO Auto-generated method stub	
 		Session session = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.COMMIT);
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}

@@ -64,6 +64,7 @@ public class UserService {
 	 */
 	public Map<String,Object> login(String email,String password) throws BaseException{
 		Map<String,Object> result = new HashMap<String, Object>();
+		System.out.println("登录时的密码MD5加密后："+SecurityUtil.getMD5(password));
 		User user = userDao.findUserByEmail(email);
 		if(user==null){
 			result.put("success", CommonMapUtil.baseMsgToMapConvertor("登录失败，该邮箱不存在！", 510));

@@ -11,6 +11,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tonghang.web.common.util.Constant;
 import com.tonghang.web.label.pojo.Label;
@@ -27,11 +28,9 @@ public class UserDaoImpl implements UserDao {
 	public User findUserById(String client_id) {
 		// TODO Auto-generated method stub
 		Session session = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.COMMIT);
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}
-		session.clear();
 		User user = (User)session.get(User.class, client_id);
 		session.getTransaction().commit();
 		session.close();
@@ -47,7 +46,6 @@ public class UserDaoImpl implements UserDao {
 	public List<User> findUserByLabel(String label_name,int nowpage) {
 		// TODO Auto-generated method stub
 		Session session = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.COMMIT);
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}
@@ -69,7 +67,6 @@ public class UserDaoImpl implements UserDao {
 	public User findUserByEmail(String email) {
 		// TODO Auto-generated method stub
 		Session session = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.COMMIT);
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}
@@ -84,7 +81,6 @@ public class UserDaoImpl implements UserDao {
 	public void save(User user) {
 		// TODO Auto-generated method stub
 		Session session = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.COMMIT);
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}
@@ -97,7 +93,6 @@ public class UserDaoImpl implements UserDao {
 	public void saveOrUpdate(User user) {
 		// TODO Auto-generated method stub
 		Session session = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.COMMIT);
 		if(!session.getTransaction().isActive()){
 			session.getTransaction().begin();
 		}

@@ -107,11 +107,12 @@ public class FriendService {
 	public Map<String,Object> getInvitationList(String client_id){
 		List<Invitation> invitations = friendDao.getInvitationByUserId(client_id);
 		Map<String,Object> result = new HashMap<String,Object>();
-		Map<String,Object> invitmsg = new HashMap<String,Object>();
 		List<Map<String,Object>> inviters = new ArrayList<Map<String,Object>>();
 		Iterator<Invitation> it = invitations.iterator();
 		while(it.hasNext()){
 			Invitation invitation = it.next();
+			//这里一定要记住map不能放在外面  否则用户数据永远都是最后一个人
+			Map<String,Object> invitmsg = new HashMap<String,Object>();
 			invitmsg.put("invitor", userUtil.userToMapConvertor(invitation.getInviter(),false,client_id).get("user"));
 			invitmsg.put("reason", invitation.getReason());
 			invitmsg.put("created_at", invitation.getCreated_at());

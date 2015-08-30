@@ -1,24 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 	  http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 	  http://www.springframework.org/schema/context
 	  http://www.springframework.org/schema/context/spring-context-3.0.xsd
 	  http://www.springframework.org/schema/mvc 
-	  http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+	  http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+	  http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
 	<context:component-scan base-package="com.tonghang.web" />
 	<context:annotation-config /> <!-- 这个是注解的支持一定要有 -->
-	<bean id="viewResolver"
-		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-		<property name="contentType" value="text/html;charset=UTF-8" />
-  		<property name="prefix" value="/WEB-INF/jsp/" />
-		<property name="suffix" value=".jsp" />
-	</bean>
-	<mvc:annotation-driven content-negotiation-manager="contentNegotiationManager" /> 
     <bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
     <property name="favorPathExtension" value="true" />
     <property name="ignoreAcceptHeader" value="false" /> 
@@ -69,6 +64,12 @@
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 		<property name="maxUploadSize" value="-1"/>
 		<property name="defaultEncoding" value="utf-8"/>
-	</bean> 
-	
+	</bean> <!--  
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/user/*"/>
+			<bean class="com.tonghang.web.statistics.interceptor.StatisticsInterceptor" />
+			</mvc:interceptor>
+	</mvc:interceptors>-->
+	<aop:aspectj-autoproxy/>
 </beans>

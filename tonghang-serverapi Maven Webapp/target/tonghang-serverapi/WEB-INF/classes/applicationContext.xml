@@ -56,12 +56,7 @@
             </props>
         </property>
     </bean>
-<!--<mvc:interceptors>  
-	  <mvc:interceptor>  
-	   <mvc:mapping path="/*" /> 
-	   <bean class="com.tonghang.web.statistics.interceptor.StatisticsInterceptor" />  
-	  </mvc:interceptor>  
-	 </mvc:interceptors>    -->    
+        
     <bean id="transactionManager"
         class="org.springframework.orm.hibernate4.HibernateTransactionManager">
       <property name="sessionFactory" ref="sessionFactory" />
@@ -69,7 +64,7 @@
    <bean id="persistenceExceptionTranslationPostProcessor" 
        class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
     <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
-
+	<aop:aspectj-autoproxy/>
  <!--   
     <bean id="transactionManager"
         class="org.springframework.orm.hibernate4.HibernateTransactionManager">
