@@ -159,7 +159,7 @@
 		<artifactId>hibernate-ehcache</artifactId>
 		<version>4.2.20.Final</version>
 	</dependency>
-
+	
   </dependencies>
   <build>
     <finalName>tonghang-serverapi</finalName>

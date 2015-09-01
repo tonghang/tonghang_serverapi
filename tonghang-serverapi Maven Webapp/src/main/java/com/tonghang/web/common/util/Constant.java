@@ -24,6 +24,7 @@ public class Constant extends HuanXinUtil{
 	public static final String DEISOLATE_MSG = "您已被管理员解封，欢迎您再次使用";
 	public static final String DELETE_TOPIC_MSG = "该话题已被房主解散";
 	public static final String PICTURE_SERVER = "http://114.215.143.83:8080/tonghang-serverapi";
+	public static final String ADV_SERVER = "http://114.215.143.83:8088/tonghang";
 	public static final String HUANXIN_URL = "http://a1.easemob.com/tonghang/tonghang/";
 	public static final String IMAGE_PATH = "/images/";
 	public static final String IMAGE_NAME = "sign.jpg";

@@ -66,7 +66,7 @@ public class SystemService {
 		config.put("use_adv", system.getUse_adv()==1?true:false);
 		config.put("third_adv", system.getThird_adv()==1?true:false);
 		config.put("self_adv_url", system.getSelf_adv_url());
-		config.put("self_img", "http://192.168.23.1:8080/tonghang"+Constant.ADV_PATH+Constant.ADV_NAME+ system.getSelf_adv_url()+".jpg");
+		config.put("self_img", Constant.ADV_SERVER+Constant.ADV_PATH+Constant.ADV_NAME+ system.getSelf_adv_url()+".jpg");
 		sysmsg.put("system", config);
 		result.put("success", sysmsg);
 		System.out.println("系统参数详情："+config);
