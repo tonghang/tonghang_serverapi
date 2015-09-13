@@ -48,11 +48,7 @@
                 <prop key="hibernate.dialect">${hibernate.dialect}</prop>
                 <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
                 <prop key="hibernate.connection.autocommit">true</prop>
-                <prop key="hibernate.current_session_context_class">thread</prop> 
-            	<prop key="hibernate.cache.use_second_level_cache">false</prop>
-				<!-- 由于查询的缓存命中率很低，所以我们关掉查询时的二级缓存 -->
-				<prop key="hibernate.cache.use_query_cache">false</prop>
-				<prop key=" hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
+ <!--           <prop key="hibernate.current_session_context_class">thread</prop>   -->  
             </props>
         </property>
     </bean>
