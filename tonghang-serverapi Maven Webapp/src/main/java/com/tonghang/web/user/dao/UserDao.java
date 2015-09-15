@@ -15,9 +15,13 @@ public interface UserDao {
 	public User findUserByNickName(String nickname);
 	
 	public User findUserById(String client_id);
-	
+	public List<User> findAllUser();
+	public List<User> findUserByUsernameUnique(String username);
 	public List<User> findUserByUsername(String username,int page);
 	public List<User> findUserByLabel(String label_name,int nowpage);
+	//按注册时间 从最新的用户中抽取指定数量返回
+	public List<User> findUserByCreatedAtDesc(int num);
+	
 	public void update(String client_id,User user);
 	public void saveOrUpdate(User user);
 	public void deleteLabel(String client_id,Label label);

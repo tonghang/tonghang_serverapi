@@ -19,9 +19,15 @@ import org.hibernate.annotations.GenericGenerator;
 
 import com.tonghang.web.label.pojo.Label;
 import com.tonghang.web.user.pojo.User;
-
+@Deprecated
 @Entity
 @Table(name="topics")
+/**
+ * 
+ * @author Administrator
+ * notice:1.0/0.3 版本 已经删除话题功能
+ *
+ */
 public class Topic {
 
 	@Column(name="id")

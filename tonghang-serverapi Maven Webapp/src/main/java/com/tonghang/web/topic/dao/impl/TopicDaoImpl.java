@@ -17,15 +17,12 @@ import com.tonghang.web.common.util.Constant;
 import com.tonghang.web.topic.dao.TopicDao;
 import com.tonghang.web.topic.pojo.Topic;
 import com.tonghang.web.user.pojo.User;
-
+@Deprecated
 @Repository("topicDao")
 public class TopicDaoImpl implements TopicDao{
 
-	private SessionFactory sessionFactory;
 	@Resource(name="sessionFactory")
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+	private SessionFactory sessionFactory;
 	/**
 	 * 新建话题
 	 */
@@ -33,13 +30,7 @@ public class TopicDaoImpl implements TopicDao{
 	@Transactional
 	public void save(Topic topic) {
 		// TODO Auto-generated method stub
-		Session session = sessionFactory.openSession();
-		if(!session.getTransaction().isActive()){
-			session.getTransaction().begin();
-		}
-		session.save(topic);
-		session.getTransaction().commit();
-		session.close();
+		sessionFactory.getCurrentSession().save(topic);
 	}
 	
 	/**
@@ -49,15 +40,8 @@ public class TopicDaoImpl implements TopicDao{
 	@Override
 	public List<Topic> findTopicByLabelName(String label_name,int nowpage) {
 		// TODO Auto-generated method stub
-		Session session = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.COMMIT);
-		if(!session.getTransaction().isActive()){
-			session.getTransaction().begin();
-		}
-		List<Topic> topics = (List<Topic>) session.createQuery("from Topic as topic where lower(topic.label.label_name) like concat('%',lower(:label_name),'%') order by topic.created_at")
-								.setParameter("label_name", label_name).setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
-		session.getTransaction().commit();
-		session.close();
+		List<Topic> topics = (List<Topic>) sessionFactory.getCurrentSession().createQuery("from Topic as topic where lower(topic.label.label_name) like concat('%',lower(:label_name),'%') order by topic.created_at")
+																			.setParameter("label_name", label_name).setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
 		return topics;
 	
 	}
@@ -69,15 +53,8 @@ public class TopicDaoImpl implements TopicDao{
 	@Override
 	public List<Topic> findTopicBySubject(String subject,int nowpage) {
 		// TODO Auto-generated method stub
-		Session session = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.COMMIT);
-		if(!session.getTransaction().isActive()){
-			session.getTransaction().begin();
-		}
-		List<Topic> topics = (List<Topic>) session.createQuery("from Topic as topic where lower(topic.subject) like concat('%',lower(:subject),'%')")
-										.setParameter("subject", subject).setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
-		session.getTransaction().commit();
-		session.close();
+		List<Topic> topics = (List<Topic>) sessionFactory.getCurrentSession().createQuery("from Topic as topic where lower(topic.subject) like concat('%',lower(:subject),'%')")
+																	.setParameter("subject", subject).setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
 		return topics;
 	}
 	
@@ -88,14 +65,8 @@ public class TopicDaoImpl implements TopicDao{
 	@Override
 	public List<Topic> findTopicByUserId(String client_id,int nowpage) {
 		// TODO Auto-generated method stub
-		Session session = sessionFactory.openSession();
-		if(!session.getTransaction().isActive()){
-			session.getTransaction().begin();
-		}
-		List<Topic> topics = (List<Topic>) session.createQuery("from Topic as topic where topic.user.client_id = :client_id")
-												.setParameter("client_id", client_id).setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
-		session.getTransaction().commit();
-		session.close();
+		List<Topic> topics = (List<Topic>) sessionFactory.getCurrentSession().createQuery("from Topic as topic where topic.user.client_id = :client_id")
+																						.setParameter("client_id", client_id).setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
 		return topics;
 	}
 
@@ -105,17 +76,10 @@ public class TopicDaoImpl implements TopicDao{
 	@Override
 	public void userJoinTopic(User user, Topic topic) {
 		// TODO Auto-generated method stub
-		Session session = sessionFactory.openSession();
-		Transaction tx = session.getTransaction();
-		if(!tx.isActive()){
-			tx.begin();
-		}
 		Topic t =findTopicById(topic.getHuanxin_group_id());	
-		user = (User) session.get(User.class, user.getClient_id());
+		user = (User) sessionFactory.getCurrentSession().get(User.class, user.getClient_id());
 		user.setTopic(t);
-		session.save(user);
-		tx.commit();
-		session.close();
+		sessionFactory.getCurrentSession().save(user);
 	}
 
 	/**
@@ -125,15 +89,8 @@ public class TopicDaoImpl implements TopicDao{
 	@Override
 	public void userLeaveTopic(User user) {
 		// TODO Auto-generated method stub
-		Session session = sessionFactory.openSession();
-		Transaction tx = session.getTransaction();
-		if(!tx.isActive()){
-			tx.begin();
-		}
-		user = (User) session.get(User.class, user.getClient_id());
+		user = (User) sessionFactory.getCurrentSession().get(User.class, user.getClient_id());
 		user.setTopic(null);
-		tx.commit();
-		session.close();
 	}
 	
 	/**
@@ -142,13 +99,7 @@ public class TopicDaoImpl implements TopicDao{
 	@Override
 	public Topic findTopicById(String id) {
 		// TODO Auto-generated method stub
-		Session session = sessionFactory.openSession();
-		if(!session.getTransaction().isActive()){
-			session.getTransaction().begin();
-		}
-		Topic topic = (Topic) session.get(Topic.class, id);
-		session.getTransaction().commit();
-		session.close();
+		Topic topic = (Topic) sessionFactory.getCurrentSession().get(Topic.class, id);
 		return topic;
 	}
 	
@@ -157,46 +108,24 @@ public class TopicDaoImpl implements TopicDao{
 	@Override
 	public List<Topic> recommendTopics(String label, int nowpage) {
 		// TODO Auto-generated method stub
-		Session session = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.COMMIT);
-		if(!session.getTransaction().isActive()){
-			session.getTransaction().begin();
-		}
-		List<Topic> topics = (List<Topic>) session.createQuery("from Topic as topic where lower(topic.label.label_name ) like concat('%',lower(:label_name),'%')")
-					.setParameter("label_name", label).setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
-		session.getTransaction().commit();
-		session.close();
+		List<Topic> topics = (List<Topic>) sessionFactory.getCurrentSession().createQuery("from Topic as topic where lower(topic.label.label_name ) like concat('%',lower(:label_name),'%')")
+													.setParameter("label_name", label).setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
 		return topics;
 	}
 	
 	@Override
 	public List<User> checkMemberFromTopic(String topic_id,int nowpage) {
 		// TODO Auto-generated method stub
-		Session session = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.COMMIT);
-		if(!session.getTransaction().isActive()){
-			session.getTransaction().begin();
-		}
-		Topic topic = (Topic) session.get(Topic.class, topic_id);
-		session.getTransaction().commit();
+		Topic topic = (Topic) sessionFactory.getCurrentSession().get(Topic.class, topic_id);
 		List<User> users = new ArrayList<User>();
 		users.addAll(Constant.PAGESIZE*(nowpage-1),topic.getUsers());
-		session.close();
 		return users;
 	}
 	@Override
 	public void delete(Topic topic) {
 		// TODO Auto-generated method stub
-		Session session = sessionFactory.openSession();
-		if(!session.getTransaction().isActive()){
-			session.getTransaction().begin();
-		}
 		topic.setUsers(null);
-		session.update(topic);
-		session.delete(topic);
-		session.getTransaction().commit();
-		session.close();
+		sessionFactory.getCurrentSession().update(topic);//删除话题中存在的用户
+		sessionFactory.getCurrentSession().delete(topic);
 	}
-
-	
 }

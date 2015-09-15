@@ -28,69 +28,39 @@ public class LabelDaoImpl implements LabelDao{
 	public void save(Label label) {
 		// TODO Auto-generated method stub
 //		System.out.println("开始插入"+label.getLabel_name());
-		Session session = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.COMMIT);
-		if(!session.getTransaction().isActive()){
-			session.getTransaction().begin();
-		}
-		session.save(label);
-		session.getTransaction().commit();
-		session.close();
+		sessionFactory.getCurrentSession().save(label);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	@Transactional
 	public List<Label> findLabelByName(String label_name) {
 		// TODO Auto-generated method stub
-		Session session = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.COMMIT);
-		if(!session.getTransaction().isActive()){
-			session.getTransaction().begin();
-		}
-		Query query =  session.createQuery("from Label as label where lower(label.label_name) like concat('%',lower(:label_name),'%')");
-		List<Label> list =query.setParameter("label_name",label_name ).list();
-		session.getTransaction().commit();
-		session.close();
-		return list;
+		Query query =  sessionFactory.getCurrentSession().createQuery("from Label as label where lower(label.label_name) like concat('%',lower(:label_name),'%')");
+		return query.setParameter("label_name",label_name ).list();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<Label> findLabelByUser(User user) {
 		// TODO Auto-generated method stub	
-		Session session = sessionFactory.openSession();
-		if(!session.getTransaction().isActive()){
-			session.getTransaction().begin();
-		}
-		session.flush(); 
-		session.clear();
-		Query query = session.createQuery("select label.label_name from Label as label join label.userlist as users where users.client_id= :client_id").
-				setParameter("client_id", user.getClient_id()).setCacheable(false);
+		Query query = sessionFactory.getCurrentSession().createQuery("select label.label_name from Label as label join label.userlist as users where users.client_id= :client_id").
+													setParameter("client_id", user.getClient_id()).setCacheable(false);
 		List<String> labelnames = (List<String>) query.list();
 		List<Label> labels = new ArrayList<Label>();
 		Set<Label> labelset = new HashSet<Label>();
-		System.out.println("查出来的标签："+labelnames);
 		for(String names:labelnames){
-			Label l = (Label) session.get(Label.class, names);
+			Label l = (Label) sessionFactory.getCurrentSession().get(Label.class, names);
 			labelset.add(l);
 		}
-		System.out.println("recommend sql:\n"+query.getQueryString());
 		user.setLabellist(labelset);
 		labels.addAll(user.getLabellist());	
-		session.close();
 		return labels;
 	}
 
 	@Override
 	public Label findLabelById(String id) {
 		// TODO Auto-generated method stub
-		Session session = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.COMMIT);
-		if(!session.getTransaction().isActive()){
-			session.getTransaction().begin();
-		}
-		return (Label) session.get(Label.class, id);
+		return (Label) sessionFactory.getCurrentSession().get(Label.class, id);
 	}
 
 	

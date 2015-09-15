@@ -11,7 +11,10 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.google.code.ssm.api.ParameterValueKeyProvider;
+import com.google.code.ssm.api.ReadThroughSingleCache;
 import com.tonghang.web.common.exception.BaseException;
 import com.tonghang.web.common.exception.EmailExistException;
 import com.tonghang.web.common.exception.LoginException;
@@ -38,6 +41,7 @@ import com.tonghang.web.user.pojo.User;
 import com.tonghang.web.user.util.UserUtil;
 
 @Service("userService")
+@Transactional
 public class UserService {
 	
 	@Resource(name="userDao")
@@ -98,7 +102,7 @@ public class UserService {
 		return result;
 	}
 	/**
-	 * 业务功能:旧版本的APP登录通道
+	 * 业务功能:旧版本0.8的APP登录通道
 	 * @param email
 	 * @param password
 	 * @return
@@ -254,6 +258,7 @@ public class UserService {
 	public boolean isFriend(String my,String friend){
 		return friendDao.isFriend(my, friend);
 	}
+	
 	/**
 	 * 首页推荐
 	 * @param 
@@ -265,7 +270,8 @@ public class UserService {
 	 * 2015-8-11日新加入排序功能，详情请见SortUtil
 	 * 2015-8-27日新加入 在标签排序基础上，按照距离排序功能
 	 */
-	public Map<String, Object> recommend(String client_id,boolean byDistance, int page){
+//	@ReadThroughSingleCache(namespace = "com.tonghang.web.user.service.UserService.recommend",expiration = 60)
+	public Map<String, Object> recommend(String client_id,boolean byDistance, /*@ParameterValueKeyProvider */ int page){
 		List<Map<String,Object>> sortlist = new ArrayList<Map<String,Object>>();
 		Map<String,Object> result = new HashMap<String, Object>();
 		List<User> users = new ArrayList<User>();
@@ -273,17 +279,29 @@ public class UserService {
 		List<String> label_names = new ArrayList<String>();
 		User user = userDao.findUserById(client_id);
 		List<Label> labels = labelDao.findLabelByUser(user);
+		//记录本次推荐有多少用户，检查这个变量超多10的时候就不添加了。
+		int user_num = 0;
 		for(Label label : labels){
 			List<User> us = userDao.findUserByLabel(label.getLabel_name(), page);
 			if(us.contains(user)){
 				us.remove(user);
 			}
-			userss.addAll(us);
-			//存放目标用户的标签，用来排序
+			user_num += us.size();
 			label_names.add(label.getLabel_name());
+			//从多出来的查询集合中取，取够10个人为止。
+			if(user_num>10){
+				for(int index=0;index<user_num-10;index++){
+					userss.add(us.get(index));
+				}
+				break;
+			}else userss.addAll(us);
+			//存放目标用户的标签，用来排序
 		}
 		users.addAll(userss);
-		if(users.size()==0||userss.size()==0&&page==1){
+/*		if(page!=1&&page<9||page==9&&users.size()<10){
+			//不足100人则查询出最新注册的一部分人填补至100人
+			users.addAll(userDao.findUserByCreatedAtDesc(100-users.size()));
+		}else*/ if(userss.size()==0&&page==1){
 //			throw new SearchNoResultException("首页推荐没有结果");
 			result.put("success", CommonMapUtil.baseMsgToMapConvertor("首页推荐没有结果", 520));
 			return result;
@@ -411,7 +429,7 @@ public class UserService {
 		if(sex!=null&&!sex.equals(user.getSex()))
 			user.setSex(sex);
 		if(username!=null&&!username.equals(user.getUsername())){
-			 if(userDao.findUserByNickName(user.getUsername())!=null){
+			 if(userDao.findUserByUsernameUnique(username).size()!=0){
 				result.put("success", CommonMapUtil.baseMsgToMapConvertor("该昵称已经被注册!", 512));
 				return result;
 			}else{

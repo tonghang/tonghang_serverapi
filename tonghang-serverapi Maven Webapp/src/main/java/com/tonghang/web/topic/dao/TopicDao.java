@@ -5,7 +5,7 @@ import java.util.Set;
 
 import com.tonghang.web.topic.pojo.Topic;
 import com.tonghang.web.user.pojo.User;
-
+@Deprecated
 public interface TopicDao {
 
 	public void save(Topic topic);

@@ -5,6 +5,7 @@
     xmlns:tx="http://www.springframework.org/schema/tx"
     xmlns:mvc="http://www.springframework.org/schema/mvc"
     xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:cache="http://www.springframework.org/schema/cache"
     xsi:schemaLocation="http://www.springframework.org/schema/beans     
         http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
         http://www.springframework.org/schema/context
@@ -13,10 +14,15 @@
         http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
         http://www.springframework.org/schema/tx
         http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+        http://www.springframework.org/schema/cache 
+        http://www.springframework.org/schema/cache/spring-cache-3.2.xsd
         http://www.springframework.org/schema/mvc 
 	  http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
     <context:property-placeholder location="classpath:hibernate.properties" />
-
+    <!-- memcache 缓存配置 -->
+	<cache:annotation-driven cache-manager="cacheManager"/>
+    <bean id="cacheManager" class="org.springframework.cache.concurrent.ConcurrentMapCacheManager" />
+    <import resource="simplesm-context.xml" />  
     <!-- 数据库映射 -->
     <!--  class="org.apache.tomcat.dbcp.dbcp.BasicDataSource" -->
     <!--  class="org.springframework.jdbc.datasource.DriverManagerDataSource" -->
@@ -59,32 +65,30 @@
    </bean>
    <bean id="persistenceExceptionTranslationPostProcessor" 
        class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
-    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
-	<aop:aspectj-autoproxy/>
- <!--   
-    <bean id="transactionManager"
-        class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-      <property name="sessionFactory" ref="sessionFactory" />
-   </bean>
-   <bean id="mainHibernateTemplate" class="org.springframework.orm.hibernate4.HibernateTemplate">
-		<property name="sessionFactory" ref="sessionFactory"/>
-		
-	</bean>
-   
-   
-    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
-
-    <tx:advice id="txAdvice" transaction-manager="txManager">
-		<tx:attributes>
-			<tx:method name="save*" propagation="REQUIRED"/>
-			<tx:method name="delete*" propagation="REQUIRED"/>
-			<tx:method name="update*" propagation="REQUIRED"/>
-			<tx:method name="find*" read-only="true"/>
-			<tx:method name="*" read-only="false"/>
-		</tx:attributes>
-	</tx:advice>
-	
-	<aop:config>
-		<aop:advisor pointcut="execution(* com.tonghang.web.*.*(..))" advice-ref="txAdvice"/>
-	</aop:config>-->
+   <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+    <aop:aspectj-autoproxy/>
+	<!-- com.google.code.ssm.CacheFactory是一个FactoryBean，会返回Cache（高速缓存）实体供Advice使用 -->
+    <!-- FactoryBean解决的是如何创建无法直接通过new运算符创建的Bean，并注入到其他的bean中。也就是说FactoryBean是创建或者管理其他被注入和管理Bean的工厂Bean -->
+    <bean name="defaultMemcachedClient" class="com.google.code.ssm.CacheFactory">
+        <property name="cacheClientFactory">
+            <!-- xmemcached配置方法 -->
+            <bean name="cacheClientFactory" class="com.google.code.ssm.providers.xmemcached.MemcacheClientFactoryImpl" />
+            <!--  spymemcached配置方法
+            <bean name="cacheClientFactory" class="com.google.code.ssm.providers.spymemcached.MemcacheClientFactoryImpl" />
+            -->
+        </property>
+        <!-- 定义了缓存节点的IP地址和端口号 -->
+        <property name="addressProvider">
+            <bean class="com.google.code.ssm.config.DefaultAddressProvider">
+                <property name="address" value="127.0.0.1:11211" />
+            </bean>
+        </property>
+        <!-- 定义了缓存节点的查找方法 -->
+        <property name="configuration">
+            <bean class="com.google.code.ssm.providers.CacheConfiguration">
+                <property name="consistentHashing" value="true" />
+            </bean>
+        </property>
+    </bean>
+<!-- ***********************  simple-spring-memcache ******************************* -->
 </beans>  

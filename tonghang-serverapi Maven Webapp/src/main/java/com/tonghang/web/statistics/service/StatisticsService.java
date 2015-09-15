@@ -5,12 +5,14 @@ import java.util.Date;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tonghang.web.statistics.dao.StatisticsDao;
 import com.tonghang.web.statistics.pojo.ActiveUser;
 import com.tonghang.web.user.pojo.User;
 
 @Service("statisticsService")
+@Transactional
 public class StatisticsService {
 
 	@Resource(name="statisticsDao")

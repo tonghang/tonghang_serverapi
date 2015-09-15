@@ -16,7 +16,7 @@
         http://www.springframework.org/schema/mvc 
 	  http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
     <context:property-placeholder location="classpath:hibernate.properties" />
-
+<!--<import resource="simplesm-context.xml" /> -->
     <!-- 数据库映射 -->
     <!--  class="org.apache.tomcat.dbcp.dbcp.BasicDataSource" -->
     <!--  class="org.springframework.jdbc.datasource.DriverManagerDataSource" -->
@@ -47,8 +47,7 @@
                 <prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
                 <prop key="hibernate.dialect">${hibernate.dialect}</prop>
                 <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
-                <prop key="hibernate.connection.autocommit">true</prop>
- <!--           <prop key="hibernate.current_session_context_class">thread</prop>   -->  
+ 				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
             </props>
         </property>
     </bean>
@@ -61,30 +60,54 @@
        class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
     <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
 	<aop:aspectj-autoproxy/>
- <!--   
-    <bean id="transactionManager"
-        class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-      <property name="sessionFactory" ref="sessionFactory" />
-   </bean>
-   <bean id="mainHibernateTemplate" class="org.springframework.orm.hibernate4.HibernateTemplate">
-		<property name="sessionFactory" ref="sessionFactory"/>
-		
+	<bean id="memcachedPool" class="com.danga.MemCached.SockIOPool" factory-method="getInstance" init-method="initialize"destroy-method="shutDown">
+		<constructor-arg>
+			<value>neeaMemcachedPool</value>
+		</constructor-arg>
+		<property name="servers">
+			<list>
+				<value>${memcache.server}</value>
+			</list>
+		</property>
+		<property name="initConn">
+			<value>${memcache.initConn}</value>
+		</property>
+		<property name="minConn">
+			<value>${memcache.minConn}</value>
+		</property>
+		<property name="maxConn">
+			<value>${memcache.maxConn}</value>
+		</property>
+		<property name="maintSleep">
+			<value>${memcache.maintSleep}</value>
+		</property>
+		<property name="nagle">
+			<value>${memcache.nagle}</value>
+		</property>
+		<property name="socketTO">
+			<value>${memcache.socketTO}</value>
+		</property>
 	</bean>
-   
-   
-    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
-
-    <tx:advice id="txAdvice" transaction-manager="txManager">
-		<tx:attributes>
-			<tx:method name="save*" propagation="REQUIRED"/>
-			<tx:method name="delete*" propagation="REQUIRED"/>
-			<tx:method name="update*" propagation="REQUIRED"/>
-			<tx:method name="find*" read-only="true"/>
-			<tx:method name="*" read-only="false"/>
-		</tx:attributes>
-	</tx:advice>
-	
-	<aop:config>
-		<aop:advisor pointcut="execution(* com.tonghang.web.*.*(..))" advice-ref="txAdvice"/>
-	</aop:config>-->
+	<bean id="memcachedClient" class="com.danga.MemCached.MemCachedClient">
+		<constructor-arg>
+			<value>neeaMemcachedPool</value>
+		</constructor-arg>
+	</bean>
+<!--  
+	<bean name="defaultMemcachedClient" class="com.google.code.ssm.CacheFactory">  
+        <property name="cacheClientFactory">  
+            <bean class="com.google.code.ssm.providers.xmemcached.MemcacheClientFactoryImpl" />  
+        </property>  
+        <property name="addressProvider">  
+            <bean class="com.google.code.ssm.config.DefaultAddressProvider">  
+                <property name="address" value="192.168.7.131:11211" />  
+            </bean>  
+        </property>  
+        <property name="configuration">  
+            <bean class="com.google.code.ssm.providers.CacheConfiguration">  
+                <property name="consistentHashing" value="true" />  
+            </bean>  
+        </property>  
+    </bean>
+-->
 </beans>  

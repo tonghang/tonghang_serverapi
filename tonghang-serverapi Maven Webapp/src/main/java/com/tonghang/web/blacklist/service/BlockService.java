@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tonghang.web.common.util.CommonMapUtil;
 import com.tonghang.web.common.util.HuanXinUtil;
@@ -16,6 +17,7 @@ import com.tonghang.web.user.pojo.User;
 import com.tonghang.web.user.util.UserUtil;
 
 @Service("blockService")
+@Transactional
 public class BlockService {
 
 	@Resource(name="userDao")

@@ -3,12 +3,14 @@ package com.tonghang.web.location.service;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tonghang.web.location.dao.LocationDao;
 import com.tonghang.web.location.pojo.Location;
 import com.tonghang.web.user.pojo.User;
 
 @Service("locationService")
+@Transactional
 public class LocationService {
 
 	@Resource(name="locationDao")

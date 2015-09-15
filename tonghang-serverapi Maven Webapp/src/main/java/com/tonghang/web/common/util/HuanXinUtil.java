@@ -26,6 +26,7 @@ public class HuanXinUtil {
 	public static Integer duration;
 	public static int count = 0;
 	static {
+		System.out.println("加载HUANXINUtil 类");
 		getHuangXinServerToken();
 		getTokenPeriodly();
 	}
@@ -48,7 +49,7 @@ public class HuanXinUtil {
 	 * 获得环信管理员的TOKEN(定时更新尚未实现)
 	 * @return
 	 */
-	protected static void getHuangXinServerToken(){
+	private static void getHuangXinServerToken(){
 		HttpHeaders header = new HttpHeaders();
 		Map<String,Object> parts = new HashMap<String, Object>();
 		header.add("Content-Type","application/json");

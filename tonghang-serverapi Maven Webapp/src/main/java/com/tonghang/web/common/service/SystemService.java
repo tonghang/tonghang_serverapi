@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tonghang.web.common.dao.SystemDao;
 import com.tonghang.web.common.pojo.FeedBack;
@@ -18,6 +19,7 @@ import com.tonghang.web.user.dao.UserDao;
 import com.tonghang.web.user.pojo.User;
 
 @Service("systemService")
+@Transactional
 public class SystemService {
 
 	@Resource(name="userDao")
@@ -37,6 +39,7 @@ public class SystemService {
 		FeedBack feedback = new FeedBack();
 		feedback.setContent(content);
 		feedback.setUser(user);
+		System.out.println("信息反馈"+user);
 		systemDao.saveFeedBack(feedback);
 		Map<String,Object> response = new HashMap<String, Object>();
 		Map<String,Object> result = new HashMap<String, Object>();
@@ -66,7 +69,7 @@ public class SystemService {
 		config.put("use_adv", system.getUse_adv()==1?true:false);
 		config.put("third_adv", system.getThird_adv()==1?true:false);
 		config.put("self_adv_url", system.getSelf_adv_url());
-		config.put("self_img", Constant.ADV_SERVER+Constant.ADV_PATH+Constant.ADV_NAME+ system.getSelf_adv_url()+".jpg");
+		config.put("self_img", Constant.NATIVE_ADV_SERVER+Constant.ADV_PATH+Constant.ADV_NAME+ system.getSelf_adv_url()+".jpg");
 		sysmsg.put("system", config);
 		result.put("success", sysmsg);
 		System.out.println("系统参数详情："+config);

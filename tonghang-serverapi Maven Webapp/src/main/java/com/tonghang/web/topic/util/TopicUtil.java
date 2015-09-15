@@ -18,7 +18,9 @@ import com.tonghang.web.user.util.UserUtil;
  * 所有对象列表的外层Map结构都有success键
  * @author Administrator
  *
+ *notice:1.0/0.3 版本 已经删除话题功能
  */
+@Deprecated
 public class TopicUtil {
 
 	/**

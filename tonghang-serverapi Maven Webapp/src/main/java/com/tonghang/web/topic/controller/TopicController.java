@@ -25,8 +25,9 @@ import com.tonghang.web.user.pojo.User;
  * 处理有关话题模块的请求
  * 继承BaseController处理所有异常
  * @author Administrator
- *
+ *notice:1.0/0.3 版本 已经删除话题功能
  */
+@Deprecated
 @RestController("topicController")
 @RequestMapping("topic")
 public class TopicController extends BaseController{

@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tonghang.web.common.util.CommonMapUtil;
 import com.tonghang.web.common.util.Constant;
@@ -19,13 +20,17 @@ import com.tonghang.web.friend.dao.FriendDao;
 import com.tonghang.web.friend.pojo.Invitation;
 import com.tonghang.web.user.dao.UserDao;
 import com.tonghang.web.user.pojo.User;
+import com.tonghang.web.user.service.UserService;
 import com.tonghang.web.user.util.UserUtil;
 
 @Service("friendService")
+@Transactional
 public class FriendService {
 	
 	@Resource(name="userDao")
 	private UserDao userDao;
+	@Resource(name="userService")
+	private UserService userService;
 	@Resource(name="friendDao")
 	private FriendDao friendDao;
 	@Resource(name="userUtil")
@@ -88,7 +93,7 @@ public class FriendService {
 	 * @param friend_id前端请求中的参数	好友的唯一标识
 	 */
 	public void addFriend(User my,User friend){
-		if(!friendDao.isFriend(my.getClient_id(), friend.getClient_id())){
+		if(!isFriend(my,friend)){
 			userDao.addFriend(friend, my);
 			userDao.addFriend(my, friend);
 			HuanXinUtil.operateFriends(my.getClient_id(), friend.getClient_id(), "POST");
@@ -157,6 +162,14 @@ public class FriendService {
 		}
 		return false;
 	}
-	
-	
+	/**
+	 * 业务功能：判断两个对象是不是好友关系
+	 * @param my
+	 * @param friend
+	 * @return
+	 * notice: 和UserService中不同的是，这个类不访问数据库，不走hibernate的session
+	 */
+	public boolean isFriend(User my,User friend){
+		return my.getFriends().contains(friend);
+	}
 }

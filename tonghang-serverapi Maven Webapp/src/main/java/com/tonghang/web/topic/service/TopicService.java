@@ -25,8 +25,14 @@ import com.tonghang.web.topic.util.TopicUtil;
 import com.tonghang.web.user.dao.UserDao;
 import com.tonghang.web.user.pojo.User;
 import com.tonghang.web.user.util.UserUtil;
-
+@Deprecated
 @Service("topicService")
+@Transactional
+/**
+ * 
+ * @author Administrator
+ *notice:1.0/0.3 版本 已经删除话题功能
+ */
 public class TopicService {
 
 	@Resource(name="topicDao")
