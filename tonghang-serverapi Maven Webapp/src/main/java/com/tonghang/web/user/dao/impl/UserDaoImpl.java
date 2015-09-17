@@ -32,6 +32,7 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public User findUserById(String client_id) {
 		// TODO Auto-generated method stub
+		System.out.println("走数据库方法：findUserById");
 		User user = (User)sessionFactory.getCurrentSession().get(User.class, client_id);
 		return user;
 	}
@@ -44,11 +45,11 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public List<User> findUserByLabel(String label_name,int nowpage) {
 		// TODO Auto-generated method stub
+		System.out.println("走数据库方法：findUserByLabel");
 		Query query = sessionFactory.getCurrentSession().createQuery("select distinct user from User as user left join user.labellist as " +
 				"label where lower(label.label_name) like concat('%',lower(:label_name),'%') " +
 				"and (user.birth is not null and user.birth != '') and (user.sex is not null and user.sex != '') order by user.created_at");
-		List<User> user = (List<User>) query.setParameter("label_name", label_name)
-				.setFirstResult(Constant.PAGESIZE*(nowpage-1)).setMaxResults(Constant.PAGESIZE).list();
+		List<User> user = (List<User>) query.setParameter("label_name", label_name).list();
 		return user;
 	}
 
@@ -153,11 +154,12 @@ public class UserDaoImpl implements UserDao {
 		return sessionFactory.getCurrentSession().createQuery("from User").list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> findUserByCreatedAtDesc(int num) {
+	public List<User> findOneUserByCreatedAtDesc(int begin,int end) {
 		// TODO Auto-generated method stub
-		return sessionFactory.getCurrentSession().createQuery("from User as user order by user.created_at desc")
-															.setFirstResult(0).setMaxResults(num).list();
+		return sessionFactory.getCurrentSession().createQuery("from User as user where (user.birth is not null and user.birth != '') and(user.sex is not null and user.sex != '') order by user.created_at desc")
+															.setFirstResult(begin).setMaxResults(end).list();
 	}
 
 	@Override

@@ -271,11 +271,13 @@ public class UserUtil {
 			if(!is_friend)
 				msg.put("has_invitation", has_invited);
 			else msg.put("has_invitation",!is_friend);
-			System.out.println("usersToMapConvertor: "+has_invited);
 			usersmsg.add(msg);
 		}
 		//排序操作，详细请看 SortUtil 类
+		long begin = System.currentTimeMillis();
+		System.out.println("按标签排序开始："+begin);
 		usersmsg = SortUtil.sortByLabelName(usersmsg, label_names);
+		System.out.println("--------按标签排序总耗时："+(System.currentTimeMillis()-begin));
 		usermap.put("users", usersmsg);
 		result.put("success", usermap);
 		return result;

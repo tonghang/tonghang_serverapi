@@ -10,11 +10,10 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.code.ssm.api.ParameterValueKeyProvider;
-import com.google.code.ssm.api.ReadThroughSingleCache;
 import com.tonghang.web.common.exception.BaseException;
 import com.tonghang.web.common.exception.EmailExistException;
 import com.tonghang.web.common.exception.LoginException;
@@ -36,6 +35,7 @@ import com.tonghang.web.statistics.service.StatisticsService;
 import com.tonghang.web.topic.dao.TopicDao;
 import com.tonghang.web.topic.pojo.Topic;
 import com.tonghang.web.topic.util.TopicUtil;
+import com.tonghang.web.user.cache.UserCache;
 import com.tonghang.web.user.dao.UserDao;
 import com.tonghang.web.user.pojo.User;
 import com.tonghang.web.user.util.UserUtil;
@@ -58,6 +58,8 @@ public class UserService {
 	private LocationService locationService;
 	@Resource(name="userUtil")
 	private UserUtil userUtil;
+	@Resource(name="userCache")
+	private UserCache cache;
 	
 	/**
 	 * 用户登录
@@ -171,17 +173,16 @@ public class UserService {
 	 * 
 	 * notice：第一步注册去掉了添加标签
 	 * @throws NickNameExistException 
+	 * 
+	 * 2015-9-17：删除UserCache中的
 	 */
+	@CacheEvict(value=
+		{"com.tonghang.web.user.cache.UserCache.getSearchLabelCache",
+		 "com.tonghang.web.user.cache.UserCache.getRecommendCache",
+		 "com.tonghang.web.user.cache.UserCache.getSearchNickNameCache"
+		},allEntries = true)
 	public Map<String,Object> registUser(User user) throws EmailExistException, NickNameExistException{
 		Map<String,Object> result = new HashMap<String, Object>();
-		//去掉标签部分
-//		Iterator<Label> it = user.getLabellist().iterator();
-//		while(it.hasNext()){
-//			Label label = it.next();
-//			System.out.println("regist:"+label.getLabel_name());
-//			if(labelDao.findLabelById(label.getLabel_name())==null)
-//				labelDao.save(label);
-//		}
 		if(userDao.findUserByEmail(user.getEmail())!=null){
 			result.put("success", CommonMapUtil.baseMsgToMapConvertor("注册失败！该邮箱已被注册", 511));
 			return result;
@@ -269,50 +270,39 @@ public class UserService {
 	 * 
 	 * 2015-8-11日新加入排序功能，详情请见SortUtil
 	 * 2015-8-27日新加入 在标签排序基础上，按照距离排序功能
+	 * 2015-9-16 新增缓存功能。将所有查询结果缓存，在缓存结果中进行分页
 	 */
-//	@ReadThroughSingleCache(namespace = "com.tonghang.web.user.service.UserService.recommend",expiration = 60)
-	public Map<String, Object> recommend(String client_id,boolean byDistance, /*@ParameterValueKeyProvider */ int page){
-		List<Map<String,Object>> sortlist = new ArrayList<Map<String,Object>>();
+	public Map<String, Object> recommend(String client_id,boolean byDistance, int page){
 		Map<String,Object> result = new HashMap<String, Object>();
-		List<User> users = new ArrayList<User>();
-		Set<User> userss = new HashSet<User>();
-		List<String> label_names = new ArrayList<String>();
-		User user = userDao.findUserById(client_id);
-		List<Label> labels = labelDao.findLabelByUser(user);
-		//记录本次推荐有多少用户，检查这个变量超多10的时候就不添加了。
-		int user_num = 0;
-		for(Label label : labels){
-			List<User> us = userDao.findUserByLabel(label.getLabel_name(), page);
-			if(us.contains(user)){
-				us.remove(user);
-			}
-			user_num += us.size();
-			label_names.add(label.getLabel_name());
-			//从多出来的查询集合中取，取够10个人为止。
-			if(user_num>10){
-				for(int index=0;index<user_num-10;index++){
-					userss.add(us.get(index));
-				}
-				break;
-			}else userss.addAll(us);
-			//存放目标用户的标签，用来排序
-		}
-		users.addAll(userss);
-/*		if(page!=1&&page<9||page==9&&users.size()<10){
-			//不足100人则查询出最新注册的一部分人填补至100人
-			users.addAll(userDao.findUserByCreatedAtDesc(100-users.size()));
-		}else*/ if(userss.size()==0&&page==1){
-//			throw new SearchNoResultException("首页推荐没有结果");
+		//用来覆盖缓存方法中 succss键对应的users列表
+		Map<String,Object> success = new HashMap<String, Object>();
+		List<Map<String,Object>> users = cache.getRecommendCache(client_id, byDistance);		
+		System.out.println("缓存的数据量: "+users.size());
+		int front = (page-1)*Constant.PAGESIZE;
+		//当前页数的尾索引
+		int now = page*Constant.PAGESIZE;
+		//缓存中数据页数
+		System.out.println("当前页数："+page);
+		int cache_page = (users.size()/Constant.PAGESIZE)+1;
+		System.out.println("缓存总页数："+cache_page);
+		System.out.println("缓存方法中取出的数据："+users);
+		if((users==null||users.size()==0)&&page==1){
 			result.put("success", CommonMapUtil.baseMsgToMapConvertor("首页推荐没有结果", 520));
-			return result;
-		}else if(userss.size()==0&&page>1){
+		}else if(users==null&&page!=1||page>cache_page){
 			result.put("success", CommonMapUtil.baseMsgToMapConvertor("搜索不到更多了", 520));
-			return result;
+		}else{
+			if(page==cache_page){
+				success.put("users", users.subList(front, users.size()));
+				success.putAll(CommonMapUtil.baseMsgToMapConvertor());
+				result.put("success", success);
+			}else if(page<cache_page){
+				success.put("users", users.subList(front, now));
+				success.putAll(CommonMapUtil.baseMsgToMapConvertor());
+				result.put("success", success);
+			}
 		}
-//			throw new SearchNoResultException("搜索不到更多了");
-		return byDistance?userUtil.usersToMapSortedWithDistanceConvertor(users, user):userUtil.usersToMapSortedConvertor(users,user);
+		return result;
 	}
-
 	/**
 	 * 按标签搜索用户
 	 * @param client_id
@@ -325,24 +315,34 @@ public class UserService {
 	public Map<String, Object> searchLabel(String client_id,String label_name, boolean byDistance,int page){
 		// TODO Auto-generated method stub
 		Map<String,Object> result = new HashMap<String, Object>();
-		List<Label> labels = labelDao.findLabelByName(label_name);
-		Set<User> userss = new HashSet<User>(); 
-		List<User> users = new ArrayList<User>();
-		for(Label label : labels){
-			List<User> us = userDao.findUserByLabel(label.getLabel_name(), page);
-			userss.addAll(us);
-		}
-		users.addAll(userss);
+		Map<String,Object> success = new HashMap<String, Object>();
+		List<Map<String,Object>> users = cache.getSearchLabelCache(client_id, label_name, byDistance);
 		//当page=1时userss.size()为0说明用户一开始就搜不到数据，
 		//page>1时userss.size()为0说明用户刷新了数据，但是没有结果了
-		if(userss.size()==0&&page==0){
-			result.put("success", CommonMapUtil.baseMsgToMapConvertor("未搜索到您想搜索的内容", 520));
-			return result;
-		}else if(userss.size()==0&&page>1){
+		int front = (page-1)*Constant.PAGESIZE;
+		//当前页数的尾索引
+		int now = page*Constant.PAGESIZE;
+		//缓存中数据页数
+		System.out.println("当前页数："+page);
+		int cache_page = (users.size()/Constant.PAGESIZE)+1;
+		System.out.println("缓存总页数："+cache_page);
+		System.out.println("缓存方法中取出的数据："+users);
+		if((users==null||users.size()==0)&&page==1){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("首页推荐没有结果", 520));
+		}else if(users==null&&page!=1||page>cache_page){
 			result.put("success", CommonMapUtil.baseMsgToMapConvertor("搜索不到更多了", 520));
-			return result;
+		}else{
+			if(page==cache_page){
+				success.put("users", users.subList(front, users.size()));
+				success.putAll(CommonMapUtil.baseMsgToMapConvertor());
+				result.put("success", success);
+			}else if(page<cache_page){
+				success.put("users", users.subList(front, now));
+				success.putAll(CommonMapUtil.baseMsgToMapConvertor());
+				result.put("success", success);
+			}
 		}
-		return byDistance?userUtil.usersToMapSortByDistanceConvertor(users, client_id):userUtil.usersToMapConvertor(users,client_id);
+		return result;
 	}
 	
 	/**
@@ -357,14 +357,32 @@ public class UserService {
 	public Map<String, Object> searchNick(String client_id,String username,boolean byDistance, int page){
 		// TODO Auto-generated method stub
 		Map<String,Object> result = new HashMap<String, Object>();
-		List<User> users = userDao.findUserByUsername(username, page);
-		if(users.size()==0&&page==0){
-			result.put("success", CommonMapUtil.baseMsgToMapConvertor("未搜索到您想搜索的内容", 520));
-			return result;
-		}else if(users.size()==0&&page>1){
+		Map<String,Object> success = new HashMap<String, Object>();
+		List<Map<String,Object>> users = cache.getSearchNickNameCache(client_id, username, byDistance, page);
+		int front = (page-1)*Constant.PAGESIZE;
+		//当前页数的尾索引
+		int now = page*Constant.PAGESIZE;
+		//缓存中数据页数
+		System.out.println("当前页数："+page);
+		int cache_page = (users.size()/Constant.PAGESIZE)+1;
+		System.out.println("缓存总页数："+cache_page);
+		System.out.println("缓存方法中取出的数据："+users);
+		if((users==null||users.size()==0)&&page==1){
+			result.put("success", CommonMapUtil.baseMsgToMapConvertor("首页推荐没有结果", 520));
+		}else if(users==null&&page!=1||page>cache_page){
 			result.put("success", CommonMapUtil.baseMsgToMapConvertor("搜索不到更多了", 520));
+		}else{
+			if(page==cache_page){
+				success.put("users", users.subList(front, users.size()));
+				success.putAll(CommonMapUtil.baseMsgToMapConvertor());
+				result.put("success", success);
+			}else if(page<cache_page){
+				success.put("users", users.subList(front, now));
+				success.putAll(CommonMapUtil.baseMsgToMapConvertor());
+				result.put("success", success);
+			}
 		}
-		return byDistance?userUtil.usersToMapSortByDistanceConvertor(users, client_id):userUtil.usersToMapConvertor(users,client_id);
+		return result;
 	}
 
 	/**
@@ -398,50 +416,12 @@ public class UserService {
 	 * @throws NickNameExistException 
 	 * 
 	 * notice:修改信息变成一个一个信息进行修改，所以这里逐个判断每个信息是不是空
+	 * 2015-09-17：修改信息放到删除缓存的步骤中。
 	 */
 	public Map<String, Object> update(String client_id, String username,
 			String sex, String birth, String city){
 		// TODO Auto-generated method stub
-		Map<String,Object> result = new HashMap<String, Object>();
-		User user = userDao.findUserById(client_id);
-//		User u = userDao.findUserByNickName(username);
-		if(user==null){
-			result.put("success", CommonMapUtil.baseMsgToMapConvertor("更新失败，当前用户不存在", 513));
-			return result;
-		}
-		if(birth!=null&&!birth.equals(user.getBirth()))
-			user.setBirth(birth);
-		//修改省份前先清空省份
-		if(city!=null){
-			user.setProvince(null);
-			user.setCity(null);
-			if(city.contains("-")){
-				String pr = StringUtil.seperate(city, 0);
-				String ci = StringUtil.seperate(city, 1);
-				if(!ci.equals(user.getCity())&&city!=null)
-					user.setCity(ci);
-				if(!pr.equals(user.getProvince())&&pr!=null)
-					user.setProvince(pr);
-			}else{
-				user.setProvince(city);
-			}
-		}
-		if(sex!=null&&!sex.equals(user.getSex()))
-			user.setSex(sex);
-		if(username!=null&&!username.equals(user.getUsername())){
-			 if(userDao.findUserByUsernameUnique(username).size()!=0){
-				result.put("success", CommonMapUtil.baseMsgToMapConvertor("该昵称已经被注册!", 512));
-				return result;
-			}else{
-				user.setUsername(username);
-				HuanXinUtil.changeUsername(user.getUsername(),user.getClient_id());				
-			}
-		}
-		userDao.saveOrUpdate(user);
-		Map<String,Object> usermap = userUtil.userToMapConvertor(user,client_id);
-		usermap.putAll(CommonMapUtil.baseMsgToMapConvertor());
-		result.put("success", usermap);
-		return result;
+		return cache.evictUpdateCache(birth, city, sex, username, client_id);
 	}
 	/**
 	 * 修改密码
@@ -451,6 +431,7 @@ public class UserService {
 	 * @return
 	 * @throws UpdateUserException
 	 * 修改密码操作会给环信发送修改请求，环信密码和自己服务器密码不一致会在发信的时候出问题
+	 * notice:密码信息不会缓存，所以不需要封装到删除缓存的方法
 	 */
 	public Map<String, Object> updatePassword(String client_id,String old_passwd, String new_passwd){
 		// TODO Auto-generated method stub
@@ -476,31 +457,11 @@ public class UserService {
 	 * @param client_id
 	 * @param list
 	 * @return
+	 * 2015-09-17：修改用户标签放到删除缓存的步骤中。
 	 */
 	public Map<String, Object> updateLabel(String client_id, List<String> list) {
 		// TODO Auto-generated method stub
-		Map<String,Object> result = new HashMap<String, Object>();
-		User user = userDao.findUserById(client_id);
-		System.out.println("修改人的ID:"+user);
-		List<Label> labels = new ArrayList<Label>();
-		userDao.deleteAllLabel(client_id);
-		for(String label_name : list){
-			Label label = labelDao.findLabelById(label_name);
-			if(label==null){
-				label = new Label();
-				label.setLabel_name(label_name);
-				labelDao.save(label);				
-			}
-			labels.add(label);
-		}
-		Set<Label> labellist = new HashSet<Label>();
-		labellist.addAll(labels);
-		user.setLabellist(labellist);
-		userDao.saveOrUpdate(user);
-		Map<String,Object> usermap = userUtil.userToMapConvertor(user,client_id);
-		usermap.putAll(CommonMapUtil.baseMsgToMapConvertor());
-		result.put("success", usermap);
-		return result;
+		return cache.evictUpdateLabelCache(client_id, list);
 	}
 
 	/***
@@ -569,4 +530,6 @@ public class UserService {
 		User user = findUserById(client_id);
 		locationService.saveLocation(user, x_point, y_point);
 	}
+	
+	
 }

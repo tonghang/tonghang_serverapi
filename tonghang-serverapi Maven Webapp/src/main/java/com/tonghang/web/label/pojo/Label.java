@@ -1,5 +1,6 @@
 package com.tonghang.web.label.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ import com.tonghang.web.user.pojo.User;
 
 @Entity
 @Table(name="labels")
-public class Label {
+public class Label implements Serializable{
 
 	@Column(name="id")
 	private int id;

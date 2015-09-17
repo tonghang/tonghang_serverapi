@@ -1,5 +1,6 @@
 package com.tonghang.web.topic.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
@@ -28,7 +29,7 @@ import com.tonghang.web.user.pojo.User;
  * notice:1.0/0.3 版本 已经删除话题功能
  *
  */
-public class Topic {
+public class Topic implements Serializable{
 
 	@Column(name="id")
 	private int id ;

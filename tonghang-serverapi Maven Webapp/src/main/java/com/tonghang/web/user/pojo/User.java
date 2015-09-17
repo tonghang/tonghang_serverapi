@@ -1,5 +1,6 @@
 package com.tonghang.web.user.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
@@ -36,7 +37,7 @@ import com.tonghang.web.topic.pojo.Topic;
 @Component("user")
 @Entity
 @Table(name="users")
-public class User {
+public class User implements Serializable{
 	@Id
 	@GenericGenerator(strategy="assigned",name="idGenerator")
 	@GeneratedValue(generator="idGenerator")
