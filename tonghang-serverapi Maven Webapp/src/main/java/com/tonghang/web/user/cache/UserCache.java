@@ -66,9 +66,8 @@ public class UserCache {
 		List<Map<String,Object>> us = (List<Map<String, Object>>) success.get("users");
 		List<User> usrs = userDao.findOneUserByCreatedAtDesc(0,100);
 		for(User u:usrs){
-			System.out.println(us.contains(u)+"  非100人姓名："+u);
-			if(!(us.contains(u)||u.equals(user))){
-				Map<String,Object> map = userUtil.userToMapConvertor(u, client_id);
+			if(!(userss.contains(u)||u.equals(user))){
+				Map<String,Object> map = (Map<String, Object>) userUtil.userToMapConvertor(u, client_id).get("user");
 				us.add(map);
 			}
 			if(us.size()>=100){

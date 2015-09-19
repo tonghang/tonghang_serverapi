@@ -273,6 +273,7 @@ public class UserService {
 	 * 2015-9-16 新增缓存功能。将所有查询结果缓存，在缓存结果中进行分页
 	 */
 	public Map<String, Object> recommend(String client_id,boolean byDistance, int page){
+		long begin = System.currentTimeMillis(); 
 		Map<String,Object> result = new HashMap<String, Object>();
 		//用来覆盖缓存方法中 succss键对应的users列表
 		Map<String,Object> success = new HashMap<String, Object>();
@@ -301,6 +302,7 @@ public class UserService {
 				result.put("success", success);
 			}
 		}
+		System.out.println("#################一次首页推荐所消耗的总时间："+(System.currentTimeMillis()-begin));
 		return result;
 	}
 	/**
