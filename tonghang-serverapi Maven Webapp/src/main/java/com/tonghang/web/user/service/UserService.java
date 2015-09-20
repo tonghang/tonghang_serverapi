@@ -302,7 +302,6 @@ public class UserService {
 				result.put("success", success);
 			}
 		}
-		System.out.println("#################一次首页推荐所消耗的总时间："+(System.currentTimeMillis()-begin));
 		return result;
 	}
 	/**
@@ -397,9 +396,10 @@ public class UserService {
 		// TODO Auto-generated method stub
 		Map<String,Object> result = new HashMap<String, Object>();
 		User user = userDao.findUserById(obj_id);
-		System.out.println("查看某用户详细信息："+user.getLabellist());
-		System.out.println("查看某用户详细信息："+user);
-		Map<String,Object> usermap = userUtil.userToMapConvertor(user,client_id);
+		Map<String,Object> usermap = new HashMap<String, Object>();
+		if(user!=null){
+			usermap = userUtil.userToMapConvertor(user,client_id);
+		}
 		usermap.putAll(CommonMapUtil.baseMsgToMapConvertor());
 		result.put("success", usermap);
 		return result;
@@ -421,9 +421,9 @@ public class UserService {
 	 * 2015-09-17：修改信息放到删除缓存的步骤中。
 	 */
 	public Map<String, Object> update(String client_id, String username,
-			String sex, String birth, String city){
+			String sex, String birth, String city,boolean img){
 		// TODO Auto-generated method stub
-		return cache.evictUpdateCache(birth, city, sex, username, client_id);
+		return cache.evictUpdateCache(birth, city, sex, username, client_id, img);
 	}
 	/**
 	 * 修改密码

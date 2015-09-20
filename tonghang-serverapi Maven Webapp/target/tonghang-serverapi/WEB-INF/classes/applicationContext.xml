@@ -4,8 +4,8 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:tx="http://www.springframework.org/schema/tx"
     xmlns:mvc="http://www.springframework.org/schema/mvc"
-    xmlns:aop="http://www.springframework.org/schema/aop"
     xmlns:cache="http://www.springframework.org/schema/cache"
+    xmlns:aop="http://www.springframework.org/schema/aop"
     xsi:schemaLocation="http://www.springframework.org/schema/beans     
         http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
         http://www.springframework.org/schema/context
@@ -19,10 +19,15 @@
         http://www.springframework.org/schema/mvc 
 	  http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
     <context:property-placeholder location="classpath:hibernate.properties" />
-    <!-- memcache 缓存配置 -->
-	<cache:annotation-driven cache-manager="cacheManager"/>
-    <bean id="cacheManager" class="org.springframework.cache.concurrent.ConcurrentMapCacheManager" />
-    <import resource="simplesm-context.xml" />  
+    <cache:annotation-driven cache-manager="ehcacheManager"/>
+	<!-- cacheManager工厂类，指定ehcache.xml的位置 -->
+	<bean id="ehcacheManagerFactory" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+		<property name="configLocation" value="classpath:ehcache.xml" />
+	</bean>
+	<!-- 声明cacheManager -->
+	<bean id="ehcacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+		<property name="cacheManager" ref="ehcacheManagerFactory" />
+	</bean>
     <!-- 数据库映射 -->
     <!--  class="org.apache.tomcat.dbcp.dbcp.BasicDataSource" -->
     <!--  class="org.springframework.jdbc.datasource.DriverManagerDataSource" -->
@@ -53,8 +58,7 @@
                 <prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
                 <prop key="hibernate.dialect">${hibernate.dialect}</prop>
                 <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
-                <prop key="hibernate.connection.autocommit">true</prop>
- <!--           <prop key="hibernate.current_session_context_class">thread</prop>   -->  
+ 				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
             </props>
         </property>
     </bean>
@@ -65,30 +69,24 @@
    </bean>
    <bean id="persistenceExceptionTranslationPostProcessor" 
        class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
-   <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
-    <aop:aspectj-autoproxy/>
-	<!-- com.google.code.ssm.CacheFactory是一个FactoryBean，会返回Cache（高速缓存）实体供Advice使用 -->
-    <!-- FactoryBean解决的是如何创建无法直接通过new运算符创建的Bean，并注入到其他的bean中。也就是说FactoryBean是创建或者管理其他被注入和管理Bean的工厂Bean -->
-    <bean name="defaultMemcachedClient" class="com.google.code.ssm.CacheFactory">
-        <property name="cacheClientFactory">
-            <!-- xmemcached配置方法 -->
-            <bean name="cacheClientFactory" class="com.google.code.ssm.providers.xmemcached.MemcacheClientFactoryImpl" />
-            <!--  spymemcached配置方法
-            <bean name="cacheClientFactory" class="com.google.code.ssm.providers.spymemcached.MemcacheClientFactoryImpl" />
-            -->
-        </property>
-        <!-- 定义了缓存节点的IP地址和端口号 -->
-        <property name="addressProvider">
-            <bean class="com.google.code.ssm.config.DefaultAddressProvider">
-                <property name="address" value="127.0.0.1:11211" />
-            </bean>
-        </property>
-        <!-- 定义了缓存节点的查找方法 -->
-        <property name="configuration">
-            <bean class="com.google.code.ssm.providers.CacheConfiguration">
-                <property name="consistentHashing" value="true" />
-            </bean>
-        </property>
+    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+	<aop:aspectj-autoproxy/>
+    
+<!--  
+	<bean name="defaultMemcachedClient" class="com.google.code.ssm.CacheFactory">  
+        <property name="cacheClientFactory">  
+            <bean class="com.google.code.ssm.providers.xmemcached.MemcacheClientFactoryImpl" />  
+        </property>  
+        <property name="addressProvider">  
+            <bean class="com.google.code.ssm.config.DefaultAddressProvider">  
+                <property name="address" value="192.168.7.131:11211" />  
+            </bean>  
+        </property>  
+        <property name="configuration">  
+            <bean class="com.google.code.ssm.providers.CacheConfiguration">  
+                <property name="consistentHashing" value="true" />  
+            </bean>  
+        </property>  
     </bean>
-<!-- ***********************  simple-spring-memcache ******************************* -->
+-->
 </beans>  

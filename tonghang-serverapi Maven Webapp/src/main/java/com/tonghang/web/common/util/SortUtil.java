@@ -92,7 +92,7 @@ public class SortUtil{
 	 * @return
 	 * notice:排序量的类型是double的,用来为距离排序.排序完
 	 */
-	private static List<Map<String,Object>> sortDouoble(List<Map<String,Object>> list){
+	private static List<Map<String,Object>> sortDouble(List<Map<String,Object>> list){
 		int index = 0;
 		int max = 0;
 		System.out.println("按距离排序  "+list.size());
@@ -118,7 +118,7 @@ public class SortUtil{
 	 * @return
 	 */
 	public static List<Map<String,Object>> sortByDistance(List<Map<String,Object>> list){
-		return sortDouoble(list);
+		return sortDouble(list);
 	}
 
 }

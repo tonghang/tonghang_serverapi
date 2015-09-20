@@ -282,9 +282,12 @@ public class UserController extends BaseController{
 	@RequestMapping(value = "/update/{client_id}")
 	public ResponseEntity<Map<String,Object>> update(HttpServletRequest request,@RequestParam(required=false) CommonsMultipartFile image,@RequestParam String mapstr,@PathVariable String client_id) throws JsonParseException, JsonMappingException, IOException, UpdateUserException, NickNameExistException {
 		Map map = new ObjectMapper().readValue(mapstr, HashMap.class);
-		RequestUtil.UserImageReceiver(request, client_id, image);
+		boolean img = false;
+		if(image!=null)
+			RequestUtil.UserImageReceiver(request, client_id, image);
+		else img = true;
 		System.out.println("username:"+(String)map.get("username")+" sex:"+(String)map.get("sex")+" birth:"+(String)map.get("birth")+" city:"+(String)map.get("city"));
-		return new ResponseEntity<Map<String,Object>>(userService.update(client_id,(String)map.get("username"),(String)map.get("sex"),(String)map.get("birth"),(String)map.get("city")), HttpStatus.OK);
+		return new ResponseEntity<Map<String,Object>>(userService.update(client_id,(String)map.get("username"),(String)map.get("sex"),(String)map.get("birth"),(String)map.get("city"),img), HttpStatus.OK);
 	}
 	
 	/**
@@ -395,6 +398,7 @@ public class UserController extends BaseController{
 		result.put("success", CommonMapUtil.baseMsgToMapConvertor());
 		double x_point = (Double)map.get("x_point");
 		double y_point = (Double)map.get("y_point");
+		System.out.println("地理位置信息：X= "+x_point+" Y= "+y_point);
 		userService.saveUsersLocation(client_id, x_point, y_point);
 		return new ResponseEntity<Map<String,Object>>(result,HttpStatus.OK);
 	}

@@ -5,7 +5,6 @@
     xmlns:tx="http://www.springframework.org/schema/tx"
     xmlns:mvc="http://www.springframework.org/schema/mvc"
     xmlns:cache="http://www.springframework.org/schema/cache"
-    xmlns:ehcache="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring"
     xmlns:aop="http://www.springframework.org/schema/aop"
     xsi:schemaLocation="http://www.springframework.org/schema/beans     
         http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
@@ -17,8 +16,6 @@
         http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
         http://www.springframework.org/schema/cache 
         http://www.springframework.org/schema/cache/spring-cache-3.2.xsd
-        http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring
-        http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd
         http://www.springframework.org/schema/mvc 
 	  http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
     <context:property-placeholder location="classpath:hibernate.properties" />

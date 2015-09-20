@@ -13,7 +13,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
-import com.easemob.chat.EMChatService;
 import com.tonghang.web.common.util.CommonMapUtil;
 import com.tonghang.web.common.util.HuanXinUtil;
 import com.tonghang.web.common.util.StringUtil;
@@ -123,7 +122,7 @@ public class UserCache {
 		 "com.tonghang.web.user.cache.UserCache.getRecommendCache",
 		 "com.tonghang.web.user.cache.UserCache.getSearchNickNameCache"
 		},allEntries = true)
-	public Map<String,Object> evictUpdateCache(String birth,String city,String sex,String username,String client_id){
+	public Map<String,Object> evictUpdateCache(String birth,String city,String sex,String username,String client_id,boolean img){
 		Map<String,Object> result = new HashMap<String, Object>();
 		User user = userDao.findUserById(client_id);
 		if(user==null){

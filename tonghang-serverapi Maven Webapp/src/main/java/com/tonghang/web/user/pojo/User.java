@@ -48,7 +48,8 @@ public class User implements Serializable{
 	
 	@Column(name="password")
 	private String password;
-	
+	@Column(name="image")
+	private String image;
 	@Column(name="email")
 	private String email;
 	
@@ -114,6 +115,13 @@ public class User implements Serializable{
 	@LazyCollection(LazyCollectionOption.FALSE)
 	private Set<User> blacklist;
 	
+	
+	public String getImage() {
+		return image;
+	}
+	public void setImage(String image) {
+		this.image = image;
+	}
 	public Topic getTopic() {
 		return topic;
 	}

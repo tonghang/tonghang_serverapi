@@ -29,6 +29,8 @@ public class SystemConfig {
 	private int third_adv;
 	@Column(name="self_adv_url")
 	private String self_adv_url;
+	@Column(name="app_version")
+	private String app_version;
 	public int getId() {
 		return id;
 	}
@@ -83,6 +85,14 @@ public class SystemConfig {
 
 	public void setUse_adv(int use_adv) {
 		this.use_adv = use_adv;
+	}
+
+	public String getApp_version() {
+		return app_version;
+	}
+
+	public void setApp_version(String app_version) {
+		this.app_version = app_version;
 	}
 	
 	

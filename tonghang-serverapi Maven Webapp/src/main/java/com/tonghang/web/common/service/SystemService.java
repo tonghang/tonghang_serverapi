@@ -71,6 +71,7 @@ public class SystemService {
 		config.put("self_adv_url", system.getSelf_adv_url());
 		config.put("self_img", Constant.ADV_SERVER+Constant.ADV_PATH+Constant.ADV_NAME+ system.getSelf_adv_url()+".jpg");
 		config.put("app_link", Constant.APP_LINK);
+		config.put("app_version", system.getApp_version());
 		sysmsg.put("system", config);
 		result.put("success", sysmsg);
 		System.out.println("系统参数详情："+config);

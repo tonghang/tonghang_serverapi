@@ -1,23 +1,14 @@
 package com.tonghang.web.user.dao.impl;
 
-import java.sql.DriverManager;
 import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.Resource;
 
-import net.rubyeye.xmemcached.MemcachedClient;
-
-import org.hibernate.FlushMode;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.mysql.jdbc.Connection;
-import com.mysql.jdbc.Driver;
 import com.tonghang.web.common.util.Constant;
 import com.tonghang.web.label.pojo.Label;
 import com.tonghang.web.user.dao.UserDao;
@@ -27,7 +18,6 @@ import com.tonghang.web.user.pojo.User;
 public class UserDaoImpl implements UserDao {
 	@Resource(name="sessionFactory")
 	private SessionFactory sessionFactory;
-	MemcachedClient memcache;
 	
 	@Override
 	public User findUserById(String client_id) {

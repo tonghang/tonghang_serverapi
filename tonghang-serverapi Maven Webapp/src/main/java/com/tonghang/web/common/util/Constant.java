@@ -26,7 +26,7 @@ public class Constant extends HuanXinUtil{
 	
 	public static final String PICTURE_SERVER = "http://114.215.143.83:8080/tonghang-serverapi";
 	public static final String ADV_SERVER = "http://114.215.143.83:8080/tonghang";
-	public static final String APP_LINK = "http://192.168.23.1:8080/tonghang-serverapi/home/app/Peer_umeng_unsign_signed.apk";
+	public static final String APP_LINK = "http://114.215.143.83:8080/tonghang-serverapi/home/app/Peer_umeng_unsign_signed.apk";
 	public static final String NATIVE_ADV_SERVER = "http://192.168.23.1:8080/tonghang";
 	public static final String HUANXIN_URL = "http://a1.easemob.com/tonghang/tonghang/";
 	public static final String IMAGE_PATH = "/images/";
